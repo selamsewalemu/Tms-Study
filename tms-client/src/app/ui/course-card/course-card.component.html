@@ -1,0 +1,30 @@
+<article
+  class="course-card"
+  [class.closed]="course().enrollmentCount >= course().maxCapacity"
+>
+  <h3>
+    <a [routerLink]="['/courses', course().id]">
+      {{ course().title }} <span>({{ course().code }})</span>
+    </a>
+  </h3>
+
+  <p>
+    Enrolled {{ course().enrollmentCount }} of {{ course().maxCapacity }} seats
+  </p>
+
+  <p class="course-status">
+    {{
+      course().enrollmentCount >= course().maxCapacity
+        ? "Full"
+        : "Accepting enrollments"
+    }}
+  </p>
+
+  <button
+    type="button"
+    [disabled]="course().enrollmentCount >= course().maxCapacity"
+    (click)="enrollClicked.emit(course())"
+  >
+    Enroll
+  </button>
+</article>

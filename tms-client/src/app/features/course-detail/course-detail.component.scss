@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #18231f;
+  background: #e7eee9;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.detail-shell {
+  min-height: 100vh;
+  padding: clamp(1.25rem, 5vw, 5rem);
+  display: grid;
+  place-items: center;
+}
+
+.detail-panel {
+  width: min(100%, 42rem);
+  padding: clamp(1.5rem, 5vw, 4rem);
+  border: 1px solid rgba(24, 35, 31, 0.12);
+  background: #f8faf6;
+  box-shadow: 16px 18px 0 #b9cec0;
+}
+
+.eyebrow {
+  margin: 0 0 1.5rem;
+  color: #a24d2d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 400;
+}
+
+.course-id {
+  margin: 1.5rem 0 2rem;
+  font-size: 1.2rem;
+}
+
+.back-link {
+  color: #285c4b;
+  font-weight: 700;
+}

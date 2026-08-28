@@ -1,0 +1,73 @@
+:host {
+  display: block;
+}
+
+.course-card {
+  min-height: 15rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #c7d8cb;
+  background: #ffffff;
+}
+
+.course-card.closed {
+  background: #edf0ed;
+}
+
+h3 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+h3 a {
+  color: inherit;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+h3 span {
+  color: #a24d2d;
+  font-size: 0.9em;
+}
+
+p {
+  margin: 1rem 0 0;
+  color: #52625a;
+}
+
+.course-status {
+  margin-top: auto;
+  color: #285c4b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.closed .course-status {
+  color: #6a716d;
+}
+
+button {
+  margin-top: 1rem;
+  border: 0;
+  padding: 0.75rem 1rem;
+  color: #fffaf3;
+  background: #a24d2d;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: #823d24;
+}
+
+button:disabled {
+  color: #68736d;
+  background: #d2d8d3;
+  cursor: not-allowed;
+}

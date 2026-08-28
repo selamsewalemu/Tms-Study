@@ -19,5 +19,31 @@
     <button type="button" (click)="registerForClass()">
       Register for a class <span aria-hidden="true">+3</span>
     </button>
+
+    <section class="catalog" aria-labelledby="catalog-title">
+      <h2 id="catalog-title">Course Catalog</h2>
+
+      @if (availableCourses().length === 0) {
+        <p>No courses are available this term. Check back during registration.</p>
+      } @else {
+        <div class="course-grid">
+          @for (course of availableCourses(); track course.id) {
+            <tms-course-card
+              [course]="course"
+              (enrollClicked)="handleEnroll($event)"
+            />
+          } @empty {
+            <p>No results match your search.</p>
+          }
+        </div>
+      }
+
+      @if (selectedCourse(); as picked) {
+        <p class="selection-hint">
+          Last enrollment request: <strong>{{ picked.title }}</strong>
+          ({{ picked.code }})
+        </p>
+      }
+    </section>
   </section>
 </main>
