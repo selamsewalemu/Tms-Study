@@ -41,4 +41,3 @@ public sealed class CoursesController(ICachedCourseService cachedCourseService) 
 		});
 	}
 }
-

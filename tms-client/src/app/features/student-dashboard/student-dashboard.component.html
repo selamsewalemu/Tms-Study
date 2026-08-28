@@ -1,0 +1,23 @@
+<main class="dashboard-shell">
+  <section class="dashboard-panel" aria-labelledby="dashboard-title">
+    <p class="eyebrow">Training Management System</p>
+    <h1 id="dashboard-title">Welcome, {{ studentName() }}</h1>
+
+    <div class="status-grid">
+      <article class="metric-card">
+        <span class="metric-label">Credits earned</span>
+        <strong>{{ earnedCredits() }}</strong>
+        <span class="metric-note">of 120 required</span>
+      </article>
+      <article class="metric-card accent-card">
+        <span class="metric-label">Graduation status</span>
+        <strong>{{ graduationStatus() }}</strong>
+        <span class="metric-note">Keep your learning momentum</span>
+      </article>
+    </div>
+
+    <button type="button" (click)="registerForClass()">
+      Register for a class <span aria-hidden="true">+3</span>
+    </button>
+  </section>
+</main>
