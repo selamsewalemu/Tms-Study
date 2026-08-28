@@ -1,0 +1,14 @@
+namespace TmsCore.Domain.Entities;
+
+// Module 5 Exercise 1: Join entity linking a student and a course.
+public class Enrollment
+{
+	public int Id { get; set; }
+	public int StudentId { get; set; }
+	public int CourseId { get; set; }
+	public decimal? Grade { get; set; }
+	public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
+	public bool IsArchived { get; set; }
+	public Student Student { get; set; } = null!;
+	public Course Course { get; set; } = null!;
+}

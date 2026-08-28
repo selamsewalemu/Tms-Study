@@ -1,0 +1,10 @@
+Session 1 evidence commands (run with PostgreSQL available and the API running):
+
+curl -i https://localhost:5001/api/v1/courses
+curl -i https://localhost:5001/api/v2/courses
+curl -i -X POST https://localhost:5001/api/v2/enrollments -H "Content-Type: application/json" -d "{\"studentId\":1,\"courseCode\":\"CSE-101\"}"
+curl -i -X POST https://localhost:5001/api/v2/enrollments -H "Content-Type: application/json" -d "{\"studentId\":1,\"courseCode\":\"invalid\"}"
+
+Expected versioning headers:
+V1: Deprecation: true, Sunset: Thu, 31 Dec 2026 00:00:00 GMT, and Link: <https://localhost:5001/api/v2/courses>; rel="successor-version"
+V2: no Deprecation, Sunset, or successor-version Link headers.

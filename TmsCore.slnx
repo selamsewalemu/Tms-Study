@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TmsCore.Api/TmsCore.Api.csproj" />
+  <Project Path="TmsCore.Application/TmsCore.Application.csproj" />
+  <Project Path="TmsCore.Domain/TmsCore.Domain.csproj" />
+  <Project Path="TmsCore.Infrastructure/TmsCore.Infrastructure.csproj" />
+</Solution>
