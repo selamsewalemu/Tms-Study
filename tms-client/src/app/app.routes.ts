@@ -4,6 +4,13 @@ export const routes: Routes = [
   {
     path: "dashboard",
     loadComponent: () =>
+      import("./features/instructor-dashboard/instructor-dashboard.component").then(
+        (module) => module.InstructorDashboardComponent,
+      ),
+  },
+  {
+    path: "student-dashboard",
+    loadComponent: () =>
       import("./features/student-dashboard/student-dashboard.component").then(
         (module) => module.StudentDashboardComponent,
       ),
@@ -13,6 +20,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import("./features/enrollment-form/enrollment-form.component").then(
         (module) => module.EnrollmentFormComponent,
+      ),
+  },
+  {
+    path: "enrollments",
+    loadComponent: () =>
+      import("./features/enrollment-list/enrollment-list.component").then(
+        (module) => module.EnrollmentListComponent,
       ),
   },
   {

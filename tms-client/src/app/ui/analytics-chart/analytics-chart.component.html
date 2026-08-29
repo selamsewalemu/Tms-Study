@@ -1,0 +1,13 @@
+<section class="chart-container" aria-label="Enrollment analytics chart">
+  <h2>Enrollment Analytics</h2>
+
+  <div class="chart-bars" aria-live="polite">
+    <div class="bar approved" [style.height.px]="approvedHeight()">Approved</div>
+    <div class="bar pending" [style.height.px]="pendingHeight()">Pending</div>
+    <div class="bar rejected" [style.height.px]="rejectedHeight()">Rejected</div>
+  </div>
+
+  <div class="chart-summary">
+    Total records: {{ data().length }}
+  </div>
+</section>
