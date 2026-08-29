@@ -1,0 +1,105 @@
+<main class="enrollment-shell">
+  <section class="enrollment-panel" aria-labelledby="enrollment-title">
+    <p class="eyebrow">Training Management System</p>
+    <h1 id="enrollment-title">Course Enrollment</h1>
+
+    @if (submitted()) {
+      <article class="success-message">
+        <p>Enrollment submitted. Check the console for the payload.</p>
+      </article>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <fieldset>
+          <legend>Required Information</legend>
+
+          <div class="form-group">
+            <label for="studentId">Student ID</label>
+            <input
+              id="studentId"
+              type="text"
+              formControlName="studentId"
+              placeholder="STU-0000"
+            />
+            @if (
+              form.controls.studentId.touched &&
+              form.controls.studentId.invalid
+            ) {
+              <p class="error-message">
+                Enter a valid Student ID (format: STU-0000)
+              </p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="courseId">Course ID</label>
+            <input
+              id="courseId"
+              type="text"
+              formControlName="courseId"
+              placeholder="e.g., CSE-101"
+            />
+            @if (
+              form.controls.courseId.touched &&
+              form.controls.courseId.invalid
+            ) {
+              <p class="error-message">Course ID is required</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="term">Term</label>
+            <input id="term" type="text" formControlName="term" />
+            @if (form.controls.term.touched && form.controls.term.invalid) {
+              <p class="error-message">Term is required</p>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Optional Information</legend>
+
+          <div class="form-group">
+            <label for="notes">Notes (optional)</label>
+            <textarea
+              id="notes"
+              formControlName="notes"
+              placeholder="Any additional notes..."
+            ></textarea>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Backup Courses</legend>
+
+          <p class="field-description">
+            Add alternate courses if your primary choice is full.
+          </p>
+
+          @for (backup of backups.controls; track $index) {
+            <div class="form-group backup-course-row">
+              <input
+                type="text"
+                [formControl]="backup"
+                placeholder="Course ID (e.g., CSE-210)"
+              />
+              <button type="button" (click)="removeBackup($index)">
+                Remove
+              </button>
+              @if (backup.touched && backup.invalid) {
+                <p class="error-message">Course ID is required</p>
+              }
+            </div>
+          }
+
+          <button type="button" (click)="addBackup()" class="secondary-button">
+            Add Backup Course
+          </button>
+        </fieldset>
+
+        <hr />
+
+        <button type="submit" class="primary-button">Confirm Enrollment</button>
+      </form>
+    }
+  </section>
+</main>

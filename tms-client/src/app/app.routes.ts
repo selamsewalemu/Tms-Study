@@ -9,6 +9,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: "enroll",
+    loadComponent: () =>
+      import("./features/enrollment-form/enrollment-form.component").then(
+        (module) => module.EnrollmentFormComponent,
+      ),
+  },
+  {
     path: "courses/:id",
     loadComponent: () =>
       import("./features/course-detail/course-detail.component").then(
