@@ -14,7 +14,7 @@ import {
 export class CourseService {
   // inject(HttpClient) requests Angular's HTTP client the same pattern as inject(FormBuilder)
   private http = inject(HttpClient);
-  private baseUrl = "https://localhost:5001/api/courses";
+  private baseUrl = "http://localhost:5000/api/courses";
 
   getAll(page = 1, pageSize = 50) {
     // This URL is GET /api/courses → map items[] (M6 catalogue envelope). Never accept a bare root [...].
