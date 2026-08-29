@@ -1,14 +1,21 @@
 using System.Diagnostics;
+using System.Threading.Channels;
 using System.Threading.RateLimiting;
 using Asp.Versioning;
 using FluentValidation;
 using MediatR;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using TmsCore;
 using TmsCore.Infrastructure.Persistence;
@@ -19,15 +26,23 @@ using DbStudent = TmsCore.Domain.Entities.Student;
 using TmsCore.Application.Models;
 using TmsCore.Application.Interfaces;
 using TmsCore.Application.Services;
+using TmsCore.Application.Transcripts;
+using TmsCore.Application.Notifications;
 using TmsCore.Infrastructure.Persistence.Services;
 using TmsCore.Infrastructure.Services;
 using TmsCore.Infrastructure.Caching;
+using TmsCore.Infrastructure.Transcripts;
+using TmsCore.Infrastructure.Workers;
 using TmsCore.Api.RateLimiting;
+using TmsCore.Api.Hubs;
+using TmsCore.Api.Notifications;
 using TmsCore.Application.Exceptions;
+using TmsCore.Infrastructure.Identity;
 using TmsCore.Application.Behaviors;
 using TmsCore.Application.Enrollments.Commands;
 using TmsCore.ExceptionHandlers;
 using TmsCore.Middleware;
+using TmsCore.Api.Authorization;
 
 Console.WriteLine("==============================================");
 Console.WriteLine(" Training Management System (TMS)");
@@ -459,18 +474,66 @@ webBuilder.Host.UseDefaultServiceProvider(options =>
 	options.ValidateScopes = true;
 	options.ValidateOnBuild = true;
 });
+webBuilder.Services.AddScoped<TokenService>();
 webBuilder.Services
-	.AddAuthentication("TmsSession")
-	.AddScheme<AuthenticationSchemeOptions, TmsAuthenticationHandler>(
-		"TmsSession",
-		_ => { });
-webBuilder.Services.AddAuthorization();
+	.AddAuthentication(options =>
+	{
+		options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+		options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+	})
+	.AddJwtBearer(options =>
+	{
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = webBuilder.Configuration["Jwt:Issuer"],
+			ValidAudience = webBuilder.Configuration["Jwt:Audience"],
+			IssuerSigningKey = new SymmetricSecurityKey(
+				Encoding.UTF8.GetBytes(webBuilder.Configuration["Jwt:Key"]!))
+		};
+	});
+webBuilder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CourseOwner", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(new CourseOwnerRequirement());
+    });
+});
+webBuilder.Services.AddSingleton<IAuthorizationHandler, CourseOwnerAuthorizationHandler>();
+webBuilder.Services.AddIdentityCore<TmsUser>(options =>
+{
+	options.Password.RequiredLength = 12;
+	options.Password.RequireUppercase = true;
+	options.Password.RequireDigit = true;
+	options.Password.RequireNonAlphanumeric = true;
+	options.Lockout.MaxFailedAccessAttempts = 5;
+	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+	options.Lockout.AllowedForNewUsers = true;
+})
+	.AddRoles<IdentityRole>()
+	.AddEntityFrameworkStores<TmsDbContext>();
+webBuilder.Services.AddAntiforgery(options =>
+{
+	options.HeaderName = "X-XSRF-TOKEN";
+});
+var allowedOrigins = webBuilder.Configuration
+	.GetSection("AllowedOrigins").Get<string[]>()
+	?? ["http://localhost:4200"];
+
 webBuilder.Services.AddCors(options =>
 {
-	options.AddPolicy("AllowAngular", policy =>
-		policy.WithOrigins("http://localhost:4200")
+	options.AddPolicy("TmsClient", policy =>
+	{
+		policy.WithOrigins(allowedOrigins)
 			.AllowAnyHeader()
-			.AllowAnyMethod());
+			.AllowAnyMethod()
+			.AllowCredentials()
+			.SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+	});
 });
 webBuilder.Services.AddProblemDetails(options =>
 {
@@ -482,6 +545,14 @@ webBuilder.Services.AddProblemDetails(options =>
 			?? "The request could not be completed.";
 	};
 });
+webBuilder.Services.AddSignalR();
+webBuilder.Services.AddSingleton<ITranscriptStatusStore, InMemoryTranscriptStatusStore>();
+webBuilder.Services.AddSingleton(Channel.CreateBounded<TranscriptRequest>(new BoundedChannelOptions(100)
+{
+	FullMode = BoundedChannelFullMode.Wait
+}));
+webBuilder.Services.AddSingleton<ITranscriptNotificationService, SignalRTranscriptNotificationService>();
+webBuilder.Services.AddHostedService<TranscriptWorker>();
 // Module 6 Exercise 4 Part D: Register the audit filter for every controller action.
 webBuilder.Services.AddControllers(options =>
 {
@@ -544,6 +615,16 @@ webBuilder.Services.AddRateLimiter(options =>
 				})
 		};
 	});
+	options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(
+		partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+		factory: _ => new FixedWindowRateLimiterOptions
+		{
+			PermitLimit = 5,
+			Window = TimeSpan.FromMinutes(1),
+			QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+			QueueLimit = 0,
+			AutoReplenishment = true
+		}));
 	options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 	options.OnRejected = async (context, ct) =>
 	{
@@ -608,11 +689,37 @@ webApp.UseExceptionHandler();
 webApp.UseMiddleware<V1DeprecationMiddleware>();
 webApp.UseStatusCodePages();
 webApp.UseHttpsRedirection();
+webApp.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "no-referrer";
+    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    context.Response.Headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none';";
+    await next();
+});
 webApp.UseRouting();
-webApp.UseCors("AllowAngular");
+webApp.UseCors("TmsClient");
 webApp.UseRateLimiter();
 webApp.UseAuthentication();
 webApp.UseAuthorization();
+webApp.Use(async (context, next) =>
+{
+	if (context.User.Identity?.IsAuthenticated == true || context.Request.Cookies.ContainsKey("tms_auth"))
+	{
+		var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+		var tokens = antiforgery.GetAndStoreTokens(context);
+		context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken!, new CookieOptions
+		{
+			HttpOnly = false,
+			Secure = !webApp.Environment.IsDevelopment(),
+			SameSite = SameSiteMode.Strict
+		});
+	}
+
+	await next(context);
+});
+webApp.MapHub<TmsHub>("/hubs/tms").RequireCors("TmsClient");
 
 // Exercise 1: Require authentication before returning confidential assessment results.
 webApp.MapGet("/api/assessments/results", () => Results.Ok(new
@@ -699,5 +806,7 @@ if (webApp.Environment.IsDevelopment())
 }
 
 await webApp.RunAsync();
+
+public partial class Program { }
 
 

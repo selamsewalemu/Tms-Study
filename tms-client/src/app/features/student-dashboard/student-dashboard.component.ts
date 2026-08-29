@@ -16,7 +16,7 @@ export class StudentDashboardComponent {
   // Angular finds the singleton instance and gives it to us.
   private api = inject(CourseService);
 
-  studentName = signal("Liya Kebede");
+  studentName = signal("Selamsew Alemu");
   earnedCredits = signal(45);
   graduationStatus = computed(() =>
     this.earnedCredits() >= 120

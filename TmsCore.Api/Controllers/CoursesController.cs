@@ -1,6 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
+using TmsCore.Api.Authorization;
 using TmsCore.Application.Dtos;
 using TmsCore.Application.Interfaces;
 
@@ -73,6 +76,7 @@ public sealed class CoursesController(
 
 	// Exercise 1 Question 2 and Exercise 3 Question 1: Create or reject a duplicate course code.
 	[HttpPost]
+	[Authorize]
 	[ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status201Created)]
 	[ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -93,5 +97,28 @@ public sealed class CoursesController(
 		CourseResponseDto result = await courseService.CreateAsync(request, ct);
 		await cachedCourseService.InvalidateCourseCacheAsync(ct);
 		return CreatedAtAction(nameof(GetCourseById), new { id = result.Id }, result);
+	}
+
+	[HttpDelete("{id:int}")]
+	[Authorize(Policy = "CourseOwner")]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+	public async Task<IActionResult> DeleteCourse(int id, CancellationToken ct)
+	{
+		CourseResponseDto? course = await courseService.GetByIdAsync(id, ct);
+		if (course is null)
+			return NotFound();
+
+		string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+		var resource = new CourseResource(course.Id, userId ?? string.Empty);
+		if (userId is null)
+			return Forbid();
+
+		var authorizationService = HttpContext.RequestServices.GetRequiredService<IAuthorizationService>();
+		AuthorizationResult authorization = await authorizationService.AuthorizeAsync(User, resource, "CourseOwner");
+		if (!authorization.Succeeded)
+			return Forbid();
+
+		return NoContent();
 	}
 }

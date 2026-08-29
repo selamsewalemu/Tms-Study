@@ -5,6 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>tms-core-secrets</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

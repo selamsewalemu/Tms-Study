@@ -40,4 +40,22 @@ public sealed class CoursesController(ICachedCourseService cachedCourseService) 
 			}
 		});
 	}
+
+	[HttpPost]
+	public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequest request, CancellationToken ct)
+	{
+		if (!ModelState.IsValid)
+		{
+			return ValidationProblem(ModelState);
+		}
+
+		IReadOnlyList<CourseResponseDto> courses = await cachedCourseService.GetAllCoursesAsync(ct);
+		CourseResponseDto created = new(
+			courses.Count + 1,
+			request.Code,
+			request.Title,
+			request.MaxCapacity,
+			0);
+		return Created($"/api/v2/courses/{created.Id}", created);
+	}
 }

@@ -1,0 +1,52 @@
+<section class="grade-shell">
+  <div class="grade-panel">
+    <p class="eyebrow">Academic Records</p>
+    <h1>Grade Submission</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="form-row">
+        <label for="studentId">Student ID</label>
+        <input id="studentId" type="number" formControlName="studentId" placeholder="101" />
+        @if (form.controls.studentId.touched && form.controls.studentId.invalid) {
+          <small class="error">Enter a valid student ID.</small>
+        }
+      </div>
+
+      <div class="form-row">
+        <label for="courseCode">Course Code</label>
+        <input id="courseCode" type="text" formControlName="courseCode" placeholder="C#101" />
+        @if (form.controls.courseCode.touched && form.controls.courseCode.invalid) {
+          <small class="error">Enter a valid course code.</small>
+        }
+      </div>
+
+      <div class="form-row">
+        <label for="grade">Grade</label>
+        <input id="grade" type="number" min="0" max="100" formControlName="grade" placeholder="92" />
+        @if (form.controls.grade.touched && form.controls.grade.invalid) {
+          <small class="error">Grade must be between 0 and 100.</small>
+        }
+      </div>
+
+      <div class="form-row">
+        <label for="submittedBy">Submitted By</label>
+        <input id="submittedBy" type="text" formControlName="submittedBy" placeholder="Instructor name" />
+        @if (form.controls.submittedBy.touched && form.controls.submittedBy.invalid) {
+          <small class="error">Instructor name is required.</small>
+        }
+      </div>
+
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span>Submitting...</span>
+        } @else {
+          <span>Submit Grade</span>
+        }
+      </button>
+    </form>
+
+    @if (statusMessage()) {
+      <p class="status" aria-live="polite">{{ statusMessage() }}</p>
+    }
+  </div>
+</section>

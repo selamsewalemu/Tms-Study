@@ -49,4 +49,33 @@ export class EnrollmentStore {
       ),
     }));
   }
+
+  applyLiveGradeUpdate(courseCode: string, studentId: number, grade: number): void {
+    const normalizedCourseCode = courseCode.trim();
+    this.state.update((current) => ({
+      ...current,
+      entities: current.entities.map((entry) => {
+        const matchesCourse = entry.courseName.toLowerCase().includes(normalizedCourseCode.toLowerCase());
+        const matchesStudent = entry.studentName.toLowerCase().includes(String(studentId));
+
+        if (!matchesCourse && !matchesStudent) {
+          return entry;
+        }
+
+        return { ...entry, status: grade >= 50 ? "Approved" : "Rejected" };
+      }),
+    }));
+  }
+
+  applyLiveCourseUpdate(courseCode: string, message: string): void {
+    this.state.update((current) => ({
+      ...current,
+      entities: current.entities.map((entry) =>
+        entry.courseName.toLowerCase().includes(courseCode.toLowerCase())
+          ? { ...entry, status: "Pending" }
+          : entry,
+      ),
+      error: message,
+    }));
+  }
 }

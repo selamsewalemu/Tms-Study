@@ -39,7 +39,11 @@ public static class DataSeeder
 	// Question 2: Migrate first, then stop when any course already exists.
 	public static async Task SeedAsync(TmsDbContext context, CancellationToken ct = default)
 	{
-		await context.Database.MigrateAsync(ct);
+		if (context.Database.IsRelational())
+		{
+			await context.Database.MigrateAsync(ct);
+		}
+
 		if (await context.Courses.AnyAsync(ct))
 		{
 			return;
