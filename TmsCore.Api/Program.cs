@@ -465,6 +465,13 @@ webBuilder.Services
 		"TmsSession",
 		_ => { });
 webBuilder.Services.AddAuthorization();
+webBuilder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAngular", policy =>
+		policy.WithOrigins("http://localhost:4200")
+			.AllowAnyHeader()
+			.AllowAnyMethod());
+});
 webBuilder.Services.AddProblemDetails(options =>
 {
 	options.CustomizeProblemDetails = context =>
@@ -602,6 +609,7 @@ webApp.UseMiddleware<V1DeprecationMiddleware>();
 webApp.UseStatusCodePages();
 webApp.UseHttpsRedirection();
 webApp.UseRouting();
+webApp.UseCors("AllowAngular");
 webApp.UseRateLimiter();
 webApp.UseAuthentication();
 webApp.UseAuthorization();

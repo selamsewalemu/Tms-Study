@@ -1,6 +1,8 @@
-import { Component, computed, signal } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
+import { rxResource } from "@angular/core/rxjs-interop";
 import { Course } from "../../models/course.model";
 import { CourseCardComponent } from "../../ui/course-card/course-card.component";
+import { CourseService } from "../../services/course.service";
 
 @Component({
   selector: "app-student-dashboard",
@@ -10,7 +12,11 @@ import { CourseCardComponent } from "../../ui/course-card/course-card.component"
   styleUrl: "./student-dashboard.component.scss",
 })
 export class StudentDashboardComponent {
-  studentName = signal("Selamsew A");
+  // inject(CourseService) requests the service we just created.
+  // Angular finds the singleton instance and gives it to us.
+  private api = inject(CourseService);
+
+  studentName = signal("Liya Kebede");
   earnedCredits = signal(45);
   graduationStatus = computed(() =>
     this.earnedCredits() >= 120
@@ -19,36 +25,18 @@ export class StudentDashboardComponent {
   );
 
   selectedCourse = signal<Course | null>(null);
-  availableCourses = signal<Course[]>([
-    {
-      id: 1,
-      title: "Advanced Java Services",
-      code: "CSE-101",
-      maxCapacity: 30,
-      enrollmentCount: 10,
-    },
-    {
-      id: 2,
-      title: "Angular UI Lab",
-      code: "CSE-210",
-      maxCapacity: 25,
-      enrollmentCount: 25,
-    },
-    {
-      id: 3,
-      title: "Database Design",
-      code: "CSE-305",
-      maxCapacity: 20,
-      enrollmentCount: 18,
-    },
-    {
-      id: 4,
-      title: "API Security Workshop",
-      code: "CSE-420",
-      maxCapacity: 40,
-      enrollmentCount: 15,
-    },
-  ]);
+
+  // rxResource wraps the HTTP call into three managed signals:
+  // - coursesResource.isLoading() → true while waiting for the server response
+  // - coursesResource.error() → the error object if the request fails
+  // - coursesResource.value() → the Course[] array when the request succeeds
+  //
+  // It handles subscribing (starting the request) and unsubscribing (cleaning up
+  // if the user navigates away before the response arrives) automatically.
+  // You never write .subscribe() or .unsubscribe() with rxResource.
+  coursesResource = rxResource({
+    stream: () => this.api.getAll(),
+  });
 
   registerForClass(): void {
     this.earnedCredits.update((credits) => credits + 3);
