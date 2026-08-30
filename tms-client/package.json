@@ -6,7 +6,8 @@
   "scripts": {
     "build": "ng build",
     "check": "ng build --configuration development",
-    "start": "ng serve"
+    "start": "ng serve",
+    "test": "vitest"
   },
   "dependencies": {
     "@angular/animations": "^22.1.4",
@@ -26,6 +27,9 @@
     "@angular-devkit/build-angular": "^22.1.6",
     "@angular/cli": "^22.1.6",
     "@angular/compiler-cli": "^22.1.4",
-    "typescript": "^6.0.3"
+    "@playwright/test": "^1.62.1",
+    "jsdom": "^27.0.1",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.7"
   }
 }

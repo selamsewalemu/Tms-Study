@@ -5,3 +5,6 @@ obj/
 *.suo
 tms-client/node_modules/
 tms-client/dist/
+tms-client/playwright/.auth/
+tms-client/playwright-report/
+tms-client/.auth/
