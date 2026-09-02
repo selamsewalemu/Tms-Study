@@ -25,3 +25,89 @@
     <div class="spinner">Failed to load chart. Check your connection.</div>
   }
 </section>
+
+<section class="lists-section" aria-label="Subjects and student registrations">
+  <article class="list-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="panel-kicker">Course catalogue</p>
+        <h2>Subjects</h2>
+      </div>
+      <span class="panel-count">{{ courseStore.entities().length }}</span>
+    </div>
+
+    @if (courseStore.currentError()) {
+      <p class="list-message">{{ courseStore.currentError() }}</p>
+    } @else if (courseStore.entities().length === 0) {
+      <p class="list-message">No subjects are available.</p>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Code</th>
+              <th>Registered</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (course of courseStore.entities(); track course.id) {
+              <tr>
+                <td>{{ course.title }}</td>
+                <td class="muted">{{ course.code }}</td>
+                <td>{{ course.enrollmentCount }} / {{ course.maxCapacity }}</td>
+                <td>
+                  <span class="status-pill" [class.full]="course.enrollmentCount >= course.maxCapacity">
+                    {{ course.enrollmentCount >= course.maxCapacity ? "Full" : "Open" }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </article>
+
+  <article class="list-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="panel-kicker">Latest activity</p>
+        <h2>Student Registrations</h2>
+      </div>
+      <span class="panel-count">{{ store.entities().length }}</span>
+    </div>
+
+    @if (store.isLoading()) {
+      <p class="list-message">Loading registrations...</p>
+    } @else if (store.error()) {
+      <p class="list-message">{{ store.error() }}</p>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Subject</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (enrollment of store.entities(); track enrollment.id) {
+              <tr>
+                <td>{{ enrollment.studentName }}</td>
+                <td class="muted">{{ enrollment.courseName }}</td>
+                <td>
+                  <span class="status-pill" [class.pending]="enrollment.status === 'Pending'" [class.rejected]="enrollment.status === 'Rejected'">
+                    {{ enrollment.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </article>
+</section>

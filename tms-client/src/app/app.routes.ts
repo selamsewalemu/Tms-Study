@@ -26,7 +26,31 @@ export const routes: Routes = [
       ),
   },
   {
+    path: "register",
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import("./features/enrollment-form/enrollment-form.component").then(
+        (module) => module.EnrollmentFormComponent,
+      ),
+  },
+  {
     path: "student-dashboard",
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import("./features/student-dashboard/student-dashboard.component").then(
+        (module) => module.StudentDashboardComponent,
+      ),
+  },
+  {
+    path: "subjects",
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import("./features/student-dashboard/student-dashboard.component").then(
+        (module) => module.StudentDashboardComponent,
+      ),
+  },
+  {
+    path: "subject-list",
     canActivate: [authGuard],
     loadComponent: () =>
       import("./features/student-dashboard/student-dashboard.component").then(
