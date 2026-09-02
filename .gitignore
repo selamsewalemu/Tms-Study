@@ -1,10 +1,52 @@
+# ──────────────────────────────────────────────────────────────
+# .NET / ASP.NET Core
+# ──────────────────────────────────────────────────────────────
 bin/
 obj/
 .vs/
 *.user
 *.suo
+*.swp
+*.DS_Store
+
+# User secrets & local config (NEVER commit these)
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Secrets.json
+secrets.json
+
+# EF Core migrations output (keep migrations, ignore snapshot diffs)
+# Uncomment if you want to exclude migrations:
+# **/Migrations/
+
+# Rider / JetBrains
+.idea/
+*.DotSettings.user
+
+# ──────────────────────────────────────────────────────────────
+# Angular / Node
+# ──────────────────────────────────────────────────────────────
 tms-client/node_modules/
 tms-client/dist/
+tms-client/.angular/cache/
+
+# Test artifacts
 tms-client/playwright/.auth/
 tms-client/playwright-report/
 tms-client/.auth/
+tms-client/test-results/
+tms-client/coverage/
+
+# Environment files with secrets (keep environment.ts, ignore local overrides)
+tms-client/src/environments/environment.local.ts
+
+# ──────────────────────────────────────────────────────────────
+# OS / Editor
+# ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+.env
+.env.*
