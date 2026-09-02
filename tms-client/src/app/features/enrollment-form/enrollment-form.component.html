@@ -1,105 +1,376 @@
-<main class="enrollment-shell">
-  <section class="enrollment-panel" aria-labelledby="enrollment-title">
-    <p class="eyebrow">Training Management System</p>
-    <h1 id="enrollment-title">Course Enrollment</h1>
+<div class="ef-page">
 
-    @if (submitted()) {
-      <article class="success-message">
-        <p>Enrollment submitted. Check the console for the payload.</p>
-      </article>
-    } @else {
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <fieldset>
-          <legend>Required Information</legend>
+  <!-- Ambient orbs -->
+  <div class="orb orb--1" aria-hidden="true"></div>
+  <div class="orb orb--2" aria-hidden="true"></div>
+  <div class="orb orb--3" aria-hidden="true"></div>
 
-          <div class="form-group">
-            <label for="studentId">Student ID</label>
-            <input
-              id="studentId"
-              type="text"
-              formControlName="studentId"
-              placeholder="STU-0000"
-            />
-            @if (
-              form.controls.studentId.touched &&
-              form.controls.studentId.invalid
-            ) {
-              <p class="error-message">
-                Enter a valid Student ID (format: STU-0000)
-              </p>
-            }
+  <!-- ── Top bar ──────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <button type="button" class="back-btn" (click)="goBack()" aria-label="Back to dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Dashboard
+    </button>
+
+    <div class="topbar-brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="9" fill="url(#ef-grad)"/>
+          <path d="M10 13h16M10 18h10M10 23h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="ef-grad" x1="0" y1="0" x2="36" y2="36">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span>TMS Core</span>
+    </div>
+
+    <button type="button" class="logout-btn" (click)="logout()" aria-label="Log out">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1"
+          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Logout
+    </button>
+  </header>
+
+  <!-- ── Main ─────────────────────────────────────────────────────── -->
+  <main class="ef-main">
+
+    <!-- Left panel: branding + steps -->
+    <aside class="ef-aside" aria-hidden="true">
+      <div class="aside-brand">
+        <div class="aside-logo">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+            <rect width="36" height="36" rx="9" fill="url(#aside-grad)"/>
+            <path d="M10 13h16M10 18h10M10 23h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="aside-grad" x1="0" y1="0" x2="36" y2="36">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#38bdf8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <p class="aside-system">Training Management System</p>
+          <p class="aside-tagline">Course Enrollment Portal</p>
+        </div>
+      </div>
+
+      <div class="aside-steps">
+        <div class="step step--done">
+          <div class="step-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-
-          <div class="form-group">
-            <label for="courseId">Course ID</label>
-            <input
-              id="courseId"
-              type="text"
-              formControlName="courseId"
-              placeholder="e.g., CSE-101"
-            />
-            @if (
-              form.controls.courseId.touched &&
-              form.controls.courseId.invalid
-            ) {
-              <p class="error-message">Course ID is required</p>
-            }
+          <div class="step-text">
+            <strong>Identity</strong>
+            <span>Verify your student ID</span>
           </div>
-
-          <div class="form-group">
-            <label for="term">Term</label>
-            <input id="term" type="text" formControlName="term" />
-            @if (form.controls.term.touched && form.controls.term.invalid) {
-              <p class="error-message">Term is required</p>
-            }
+        </div>
+        <div class="step-connector"></div>
+        <div class="step step--active">
+          <div class="step-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Optional Information</legend>
-
-          <div class="form-group">
-            <label for="notes">Notes (optional)</label>
-            <textarea
-              id="notes"
-              formControlName="notes"
-              placeholder="Any additional notes..."
-            ></textarea>
+          <div class="step-text">
+            <strong>Select Course</strong>
+            <span>Choose your subject &amp; term</span>
           </div>
-        </fieldset>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="step-text">
+            <strong>Confirm</strong>
+            <span>Submit your request</span>
+          </div>
+        </div>
+      </div>
 
-        <fieldset>
-          <legend>Backup Courses</legend>
+      <div class="aside-note">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <p>Enrollment requests are reviewed within <strong>2 business days</strong>. You'll be notified of the decision.</p>
+      </div>
+    </aside>
 
-          <p class="field-description">
-            Add alternate courses if your primary choice is full.
-          </p>
+    <!-- Right panel: the form -->
+    <div class="ef-card">
 
-          @for (backup of backups.controls; track $index) {
-            <div class="form-group backup-course-row">
-              <input
-                type="text"
-                [formControl]="backup"
-                placeholder="Course ID (e.g., CSE-210)"
-              />
-              <button type="button" (click)="removeBackup($index)">
-                Remove
-              </button>
-              @if (backup.touched && backup.invalid) {
-                <p class="error-message">Course ID is required</p>
-              }
+      <!-- ── Success state ─────────────────────────────────────── -->
+      @if (submitted()) {
+        <div class="success-state" role="status" aria-live="polite">
+          <div class="success-icon" aria-hidden="true">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <path d="M5 13l4 4L19 7" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2>Enrollment Submitted!</h2>
+          <p>Your enrollment request has been received and is pending approval. You'll be notified within 2 business days.</p>
+          <div class="success-actions">
+            <button type="button" class="btn btn--primary" (click)="goBack()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Go to Dashboard
+            </button>
+            <button type="button" class="btn btn--ghost" (click)="resetForm()">
+              Enroll in another course
+            </button>
+          </div>
+        </div>
+
+      } @else {
+
+        <!-- ── Form header ─────────────────────────────────────── -->
+        <div class="form-head">
+          <p class="form-eyebrow">Course Enrollment</p>
+          <h1>Enrollment Request</h1>
+          <p class="form-sub">Fill in the details below to submit your course enrollment request.</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="ef-form">
+
+          <!-- ── Section 1: Required ───────────────────────────── -->
+          <div class="form-section">
+            <div class="section-label">
+              <span class="section-num">01</span>
+              <div>
+                <h2>Required Information</h2>
+                <p>These fields must be completed before submitting.</p>
+              </div>
             </div>
-          }
 
-          <button type="button" (click)="addBackup()" class="secondary-button">
-            Add Backup Course
-          </button>
-        </fieldset>
+            <div class="fields-grid">
 
-        <hr />
+              <!-- Student ID -->
+              <div class="field" [class.field--error]="isInvalid('studentId')" [class.field--valid]="form.controls.studentId.valid && form.controls.studentId.touched">
+                <label for="studentId">
+                  Student ID
+                  <span class="required" aria-hidden="true">*</span>
+                </label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/>
+                  </svg>
+                  <input
+                    id="studentId"
+                    type="text"
+                    formControlName="studentId"
+                    placeholder="STU-0000"
+                    autocomplete="off"
+                    [attr.aria-invalid]="isInvalid('studentId')"
+                    aria-describedby="studentId-hint studentId-error"
+                  />
+                  @if (form.controls.studentId.valid && form.controls.studentId.touched) {
+                    <svg class="input-check" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M5 13l4 4L19 7" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                </div>
+                <p id="studentId-hint" class="field-hint">Format: STU- followed by 4 digits</p>
+                @if (isInvalid('studentId')) {
+                  <p id="studentId-error" class="field-error" role="alert">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Enter a valid Student ID (e.g. STU-1234)
+                  </p>
+                }
+              </div>
 
-        <button type="submit" class="primary-button">Confirm Enrollment</button>
-      </form>
-    }
-  </section>
-</main>
+              <!-- Course ID -->
+              <div class="field" [class.field--error]="isInvalid('courseId')" [class.field--valid]="form.controls.courseId.valid && form.controls.courseId.touched">
+                <label for="courseId">
+                  Course ID
+                  <span class="required" aria-hidden="true">*</span>
+                </label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                  <input
+                    id="courseId"
+                    type="text"
+                    formControlName="courseId"
+                    placeholder="e.g., CSE-101"
+                    autocomplete="off"
+                    [attr.aria-invalid]="isInvalid('courseId')"
+                    aria-describedby="courseId-error"
+                  />
+                  @if (form.controls.courseId.valid && form.controls.courseId.touched) {
+                    <svg class="input-check" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M5 13l4 4L19 7" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                </div>
+                @if (isInvalid('courseId')) {
+                  <p id="courseId-error" class="field-error" role="alert">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Course ID is required
+                  </p>
+                }
+              </div>
+
+              <!-- Term -->
+              <div class="field field--full" [class.field--error]="isInvalid('term')" [class.field--valid]="form.controls.term.valid && form.controls.term.touched">
+                <label for="term">
+                  Term
+                  <span class="required" aria-hidden="true">*</span>
+                </label>
+                <div class="select-wrap">
+                  <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                  <select
+                    id="term"
+                    formControlName="term"
+                    aria-describedby="term-error"
+                  >
+                    @for (t of TERMS; track t) {
+                      <option [value]="t">{{ t }}</option>
+                    }
+                  </select>
+                  <svg class="select-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                @if (isInvalid('term')) {
+                  <p id="term-error" class="field-error" role="alert">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Term is required
+                  </p>
+                }
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="section-divider" aria-hidden="true"></div>
+
+          <!-- ── Section 2: Optional ───────────────────────────── -->
+          <div class="form-section">
+            <div class="section-label">
+              <span class="section-num section-num--optional">02</span>
+              <div>
+                <h2>Optional Information</h2>
+                <p>Provide any extra context for the enrollment committee.</p>
+              </div>
+            </div>
+
+            <div class="field field--full">
+              <label for="notes">Notes <span class="optional-tag">optional</span></label>
+              <div class="textarea-wrap">
+                <textarea
+                  id="notes"
+                  formControlName="notes"
+                  placeholder="Any additional notes, special circumstances, or requests…"
+                  rows="4"
+                  aria-label="Additional notes"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="section-divider" aria-hidden="true"></div>
+
+          <!-- ── Section 3: Backup Courses ────────────────────── -->
+          <div class="form-section">
+            <div class="section-label">
+              <span class="section-num section-num--backup">03</span>
+              <div>
+                <h2>Backup Courses</h2>
+                <p>Add alternate courses if your primary choice is full.</p>
+              </div>
+            </div>
+
+            <div class="backup-list">
+              @for (backup of backups.controls; track $index) {
+                <div class="backup-row" [class.backup-row--error]="backup.touched && backup.invalid">
+                  <div class="backup-index" aria-hidden="true">{{ $index + 1 }}</div>
+                  <div class="input-wrap backup-input">
+                    <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    <input
+                      type="text"
+                      [formControl]="backup"
+                      [placeholder]="'Backup course ID (e.g., CSE-' + (210 + $index) + ')'"
+                      [attr.aria-label]="'Backup course ' + ($index + 1)"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="remove-btn"
+                    (click)="removeBackup($index)"
+                    [attr.aria-label]="'Remove backup course ' + ($index + 1)"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                  @if (backup.touched && backup.invalid) {
+                    <p class="field-error backup-error" role="alert">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                      Course ID is required
+                    </p>
+                  }
+                </div>
+              }
+
+              <button type="button" class="add-backup-btn" (click)="addBackup()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                </svg>
+                Add Backup Course
+              </button>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="section-divider" aria-hidden="true"></div>
+
+          <!-- ── Submit ─────────────────────────────────────────── -->
+          <div class="form-footer">
+            <p class="form-footer-note">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Your data is secure. Requests are reviewed by an administrator.
+            </p>
+
+            <button
+              type="submit"
+              class="btn btn--primary btn--submit"
+              [disabled]="isSubmitting()"
+              [attr.aria-busy]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner" aria-hidden="true"></span>
+                Submitting…
+              } @else {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Confirm Enrollment
+              }
+            </button>
+          </div>
+
+        </form>
+      }
+    </div>
+  </main>
+</div>

@@ -11,6 +11,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: "signup",
+    loadComponent: () =>
+      import("./features/student-signup/student-signup.component").then(
+        (module) => module.StudentSignupComponent,
+      ),
+  },
+  {
+    path: "registration-status",
+    loadComponent: () =>
+      import("./features/registration-status/registration-status.component").then(
+        (module) => module.RegistrationStatusComponent,
+      ),
+  },
+  {
     path: "unauthorized",
     loadComponent: () =>
       import("./features/unauthorized/unauthorized.component").then(

@@ -1,0 +1,626 @@
+<div class="signup-page">
+
+  <!-- Ambient orbs -->
+  <div class="orb orb--1" aria-hidden="true"></div>
+  <div class="orb orb--2" aria-hidden="true"></div>
+  <div class="orb orb--3" aria-hidden="true"></div>
+
+  <!-- ══ Success screen ════════════════════════════════════════════ -->
+  @if (submitted()) {
+    <div class="success-screen" role="status" aria-live="polite">
+      <div class="success-ring" aria-hidden="true">
+        <div class="success-ring-inner">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+            <path d="M5 13l4 4L19 7" stroke="#22c55e" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <h1>Application Submitted!</h1>
+      <p>Your registration has been received and is pending admin review. This usually takes 2–3 business days.</p>
+
+      <!-- Reference ID — large, copy-friendly -->
+      <div class="success-id">
+        <span>Your Reference ID</span>
+        <strong>{{ submittedId() }}</strong>
+        <p class="success-id-hint">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Save this ID — you will need it to check your application status.
+        </p>
+      </div>
+
+      <!-- What happens next -->
+      <div class="success-steps">
+        <p class="success-steps-title">What happens next</p>
+        <div class="success-step">
+          <div class="success-step-dot success-step-dot--done" aria-hidden="true">✓</div>
+          <span>Application submitted successfully</span>
+        </div>
+        <div class="success-step-line" aria-hidden="true"></div>
+        <div class="success-step">
+          <div class="success-step-dot success-step-dot--active" aria-hidden="true">2</div>
+          <span>Admin reviews your documents &amp; scores</span>
+        </div>
+        <div class="success-step-line" aria-hidden="true"></div>
+        <div class="success-step">
+          <div class="success-step-dot" aria-hidden="true">3</div>
+          <span>Decision posted — check your status with your Reference ID</span>
+        </div>
+        <div class="success-step-line" aria-hidden="true"></div>
+        <div class="success-step">
+          <div class="success-step-dot" aria-hidden="true">4</div>
+          <span>If approved: your username &amp; password are shown on the status page</span>
+        </div>
+      </div>
+
+      <!-- Email notice -->
+      <div class="success-info">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <p>A notification will be sent to <strong>{{ form.controls.email.value }}</strong> once a decision is made.</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="success-actions">
+        <a [routerLink]="['/registration-status']" [queryParams]="{ ref: submittedId() }" class="btn btn--primary btn--cta">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/>
+            <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Check My Application Status
+        </a>
+        <a routerLink="/login" class="btn btn--ghost">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to Sign In
+        </a>
+      </div>
+    </div>
+  } @else {
+
+  <!-- ══ Page layout ════════════════════════════════════════════════ -->
+  <div class="signup-layout">
+
+    <!-- ── Left panel ──────────────────────────────────────────── -->
+    <aside class="signup-aside">
+      <div class="aside-top">
+        <div class="aside-logo" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 36 36" fill="none">
+            <rect width="36" height="36" rx="9" fill="url(#su-grad)"/>
+            <path d="M10 13h16M10 18h10M10 23h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="su-grad" x1="0" y1="0" x2="36" y2="36">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#38bdf8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <p class="aside-system">TMS Core</p>
+          <p class="aside-sub">Student Registration Portal</p>
+        </div>
+      </div>
+
+      <!-- Step list -->
+      <nav class="step-nav" aria-label="Registration steps">
+        @for (s of [
+          { n:1, icon:'person',   label:'Personal Info',  sub:'Name, gender, DOB' },
+          { n:2, icon:'contact',  label:'Contact Details',sub:'Email, phone, address' },
+          { n:3, icon:'academic', label:'Academic Info',  sub:'Program & education' },
+          { n:4, icon:'files',    label:'Documents',      sub:'Photo & transcripts' }
+        ]; track s.n) {
+          <button
+            type="button"
+            class="step-item"
+            [class.step-item--active]="currentStep() === s.n"
+            [class.step-item--done]="currentStep() > s.n"
+            [class.step-item--future]="currentStep() < s.n"
+            (click)="goStep(s.n)"
+            [attr.aria-current]="currentStep() === s.n ? 'step' : null"
+          >
+            <div class="step-bubble">
+              @if (currentStep() > s.n) {
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              } @else {
+                <span>{{ s.n }}</span>
+              }
+            </div>
+            @if (s.n < 4) {
+              <div class="step-line" [class.step-line--done]="currentStep() > s.n"></div>
+            }
+            <div class="step-label">
+              <strong>{{ s.label }}</strong>
+              <span>{{ s.sub }}</span>
+            </div>
+          </button>
+        }
+      </nav>
+
+      <div class="aside-login-prompt">
+        Already have an account?
+        <a routerLink="/login" class="aside-link">Sign in</a>
+      </div>
+    </aside>
+
+    <!-- ── Right form card ──────────────────────────────────────── -->
+    <main class="signup-main" aria-label="Registration form">
+
+      <!-- Progress bar -->
+      <div class="progress-bar" role="progressbar"
+        [attr.aria-valuenow]="currentStep()"
+        [attr.aria-valuemax]="TOTAL_STEPS"
+        aria-label="Registration progress">
+        <div class="progress-fill" [style.width.%]="progressPct()"></div>
+      </div>
+
+      <div class="form-card">
+        <form [formGroup]="form" (ngSubmit)="next()" novalidate>
+
+          <!-- ══ STEP 1 — Personal ══════════════════════════════ -->
+          @if (currentStep() === 1) {
+            <div class="step-panel" aria-label="Step 1: Personal Information">
+              <div class="step-head">
+                <div class="step-head-icon step-head-icon--indigo" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2>Personal Information</h2>
+                  <p>Tell us about yourself. All fields marked * are required.</p>
+                </div>
+              </div>
+
+              <div class="fields-grid">
+                <!-- First name -->
+                <div class="field" [class.field--error]="fieldInvalid('firstName')">
+                  <label for="firstName">First Name <span class="req">*</span></label>
+                  <input id="firstName" type="text" formControlName="firstName"
+                    placeholder="e.g. Amina" autocomplete="given-name"/>
+                  @if (fieldInvalid('firstName')) {
+                    <p class="ferr" role="alert">First name is required (min 2 chars)</p>
+                  }
+                </div>
+
+                <!-- Middle name -->
+                <div class="field">
+                  <label for="middleName">Middle Name <span class="opt">optional</span></label>
+                  <input id="middleName" type="text" formControlName="middleName"
+                    placeholder="e.g. Tigist" autocomplete="additional-name"/>
+                </div>
+
+                <!-- Last name -->
+                <div class="field" [class.field--error]="fieldInvalid('lastName')">
+                  <label for="lastName">Last Name <span class="req">*</span></label>
+                  <input id="lastName" type="text" formControlName="lastName"
+                    placeholder="e.g. Bekele" autocomplete="family-name"/>
+                  @if (fieldInvalid('lastName')) {
+                    <p class="ferr" role="alert">Last name is required (min 2 chars)</p>
+                  }
+                </div>
+
+                <!-- Gender -->
+                <div class="field" [class.field--error]="fieldInvalid('gender')">
+                  <label for="gender">Gender <span class="req">*</span></label>
+                  <div class="sel-wrap">
+                    <select id="gender" formControlName="gender">
+                      <option value="" disabled>Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other / Prefer not to say</option>
+                    </select>
+                    <svg class="sel-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  @if (fieldInvalid('gender')) {
+                    <p class="ferr" role="alert">Please select a gender</p>
+                  }
+                </div>
+
+                <!-- Date of birth -->
+                <div class="field" [class.field--error]="fieldInvalid('dateOfBirth')">
+                  <label for="dateOfBirth">Date of Birth <span class="req">*</span></label>
+                  <input id="dateOfBirth" type="date" formControlName="dateOfBirth"
+                    [max]="'2009-01-01'" autocomplete="bday"/>
+                  @if (fieldInvalid('dateOfBirth')) {
+                    <p class="ferr" role="alert">Date of birth is required</p>
+                  }
+                </div>
+
+                <!-- Nationality -->
+                <div class="field" [class.field--error]="fieldInvalid('nationality')">
+                  <label for="nationality">Nationality <span class="req">*</span></label>
+                  <input id="nationality" type="text" formControlName="nationality"
+                    placeholder="e.g. Ethiopian" autocomplete="country-name"/>
+                  @if (fieldInvalid('nationality')) {
+                    <p class="ferr" role="alert">Nationality is required</p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ══ STEP 2 — Contact ═══════════════════════════════ -->
+          @if (currentStep() === 2) {
+            <div class="step-panel" aria-label="Step 2: Contact Details">
+              <div class="step-head">
+                <div class="step-head-icon step-head-icon--sky" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2>Contact Details</h2>
+                  <p>How can we reach you? This will be used for notifications.</p>
+                </div>
+              </div>
+
+              <div class="fields-grid">
+                <!-- Email -->
+                <div class="field field--full" [class.field--error]="fieldInvalid('email')">
+                  <label for="email">Email Address <span class="req">*</span></label>
+                  <div class="inp-wrap">
+                    <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.8"/>
+                      <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    <input id="email" type="email" formControlName="email"
+                      placeholder="your@email.com" autocomplete="email"/>
+                  </div>
+                  @if (fieldInvalid('email')) {
+                    <p class="ferr" role="alert">Enter a valid email address</p>
+                  }
+                </div>
+
+                <!-- Phone -->
+                <div class="field field--full" [class.field--error]="fieldInvalid('phone')">
+                  <label for="phone">Phone Number <span class="req">*</span></label>
+                  <div class="inp-wrap">
+                    <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.55a16 16 0 0 0 5.45 5.45l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="1.8"/>
+                    </svg>
+                    <input id="phone" type="tel" formControlName="phone"
+                      placeholder="+251 91 234 5678" autocomplete="tel"/>
+                  </div>
+                  @if (fieldInvalid('phone')) {
+                    <p class="ferr" role="alert">Enter a valid phone number</p>
+                  }
+                </div>
+
+                <!-- Address -->
+                <div class="field field--full" [class.field--error]="fieldInvalid('address')">
+                  <label for="address">Home Address <span class="req">*</span></label>
+                  <textarea id="address" formControlName="address" rows="3"
+                    placeholder="City, Region, Country" autocomplete="street-address"></textarea>
+                  @if (fieldInvalid('address')) {
+                    <p class="ferr" role="alert">Address is required</p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ══ STEP 3 — Academic ══════════════════════════════ -->
+          @if (currentStep() === 3) {
+            <div class="step-panel" aria-label="Step 3: Academic Information">
+              <div class="step-head">
+                <div class="step-head-icon step-head-icon--amber" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 14l9-5-9-5-9 5 9 5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 14l6.16-3.422a12.083 12.083 0 0 1 .665 6.479A11.952 11.952 0 0 0 12 20.055a11.952 11.952 0 0 0-6.824-2.998 12.078 12.078 0 0 1 .665-6.479L12 14z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2>Academic Information</h2>
+                  <p>Your educational background and desired program.</p>
+                </div>
+              </div>
+
+              <div class="fields-grid">
+                <!-- Desired program -->
+                <div class="field field--full" [class.field--error]="fieldInvalid('desiredProgram')">
+                  <label for="desiredProgram">Desired Program <span class="req">*</span></label>
+                  <div class="sel-wrap">
+                    <select id="desiredProgram" formControlName="desiredProgram">
+                      <option value="" disabled>Select a program</option>
+                      @for (p of PROGRAMS; track p) {
+                        <option [value]="p">{{ p }}</option>
+                      }
+                    </select>
+                    <svg class="sel-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  @if (fieldInvalid('desiredProgram')) {
+                    <p class="ferr" role="alert">Please select a program</p>
+                  }
+                </div>
+
+                <!-- Education level -->
+                <div class="field" [class.field--error]="fieldInvalid('educationLevel')">
+                  <label for="educationLevel">Highest Education <span class="req">*</span></label>
+                  <div class="sel-wrap">
+                    <select id="educationLevel" formControlName="educationLevel">
+                      <option value="" disabled>Select level</option>
+                      <option value="High School">High School</option>
+                      <option value="Bachelor">Bachelor's Degree</option>
+                      <option value="Master">Master's Degree</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <svg class="sel-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  @if (fieldInvalid('educationLevel')) {
+                    <p class="ferr" role="alert">Please select education level</p>
+                  }
+                </div>
+
+                <!-- Institution -->
+                <div class="field" [class.field--error]="fieldInvalid('institution')">
+                  <label for="institution">Last Institution <span class="req">*</span></label>
+                  <input id="institution" type="text" formControlName="institution"
+                    placeholder="e.g. Addis Ababa University"/>
+                  @if (fieldInvalid('institution')) {
+                    <p class="ferr" role="alert">Institution name is required</p>
+                  }
+                </div>
+
+                <!-- Graduation year -->
+                <div class="field" [class.field--error]="fieldInvalid('graduationYear')">
+                  <label for="graduationYear">Graduation Year <span class="req">*</span></label>
+                  <div class="sel-wrap">
+                    <select id="graduationYear" formControlName="graduationYear">
+                      <option value="" disabled>Select year</option>
+                      @for (y of YEARS; track y) {
+                        <option [value]="y">{{ y }}</option>
+                      }
+                    </select>
+                    <svg class="sel-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  @if (fieldInvalid('graduationYear')) {
+                    <p class="ferr" role="alert">Graduation year is required</p>
+                  }
+                </div>
+
+                <!-- GPA / Exam Score — conditional on education level -->
+                @if (isHighSchool()) {
+                  <div class="field field--full" [class.field--error]="fieldInvalid('examScore')">
+                    <label for="examScore">
+                      Grade 12 Leave Exam Score <span class="req">*</span>
+                      <span class="field-badge">National Exam</span>
+                    </label>
+                    <div class="inp-wrap">
+                      <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <input id="examScore" type="text" formControlName="examScore"
+                        placeholder="e.g. 485.50 (out of 700)"/>
+                    </div>
+                    <p class="field-hint-text">Ethiopian Grade 12 National Leave Examination total score (0–700)</p>
+                    @if (fieldInvalid('examScore')) {
+                      <p class="ferr" role="alert">Enter a valid exam score between 0 and 700</p>
+                    }
+                  </div>
+                } @else {
+                  <div class="field field--full" [class.field--error]="fieldInvalid('gpa')">
+                    <label for="gpa">Cumulative GPA <span class="req">*</span></label>
+                    <div class="inp-wrap">
+                      <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <input id="gpa" type="text" formControlName="gpa"
+                        placeholder="e.g. 3.75 (out of 4.0)"/>
+                    </div>
+                    @if (fieldInvalid('gpa')) {
+                      <p class="ferr" role="alert">Enter a valid GPA between 0.00 and 4.0</p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ══ STEP 4 — Documents ═════════════════════════════ -->
+          @if (currentStep() === 4) {
+            <div class="step-panel" aria-label="Step 4: Documents">
+              <div class="step-head">
+                <div class="step-head-icon step-head-icon--green" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2>Photo &amp; Documents</h2>
+                  <p>Upload a clear profile photo and your academic document.</p>
+                </div>
+              </div>
+
+              <div class="upload-grid">
+
+                <!-- ── Photo upload ───────────────────────────── -->
+                <div class="upload-zone" [class.upload-zone--filled]="photoPreview()" [class.upload-zone--error]="photoError()">
+                  <label class="upload-label" for="photoInput" aria-label="Upload profile photo">
+
+                    @if (photoPreview()) {
+                      <!-- Preview -->
+                      <div class="photo-preview-wrap">
+                        <img [src]="photoPreview()" alt="Profile photo preview" class="photo-preview"/>
+                        <button type="button" class="preview-remove" (click)="clearPhoto(); $event.stopPropagation()"
+                          aria-label="Remove photo">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <p class="upload-replace">Click to replace</p>
+                    } @else {
+                      <!-- Placeholder -->
+                      <div class="upload-placeholder">
+                        <div class="upload-icon upload-icon--photo" aria-hidden="true">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.6"/>
+                          </svg>
+                        </div>
+                        <p class="upload-title">Profile Photo <span class="req">*</span></p>
+                        <p class="upload-hint">JPG, PNG, WEBP · Max 3 MB</p>
+                        <span class="upload-btn-label">Choose photo</span>
+                      </div>
+                    }
+
+                    <input id="photoInput" type="file" accept="image/*"
+                      class="file-hidden" (change)="onPhotoChange($event)"
+                      aria-label="Upload profile photo"/>
+                  </label>
+
+                  @if (photoError()) {
+                    <p class="ferr ferr--upload" role="alert">{{ photoError() }}</p>
+                  }
+                </div>
+
+                <!-- ── Document upload ────────────────────────── -->
+                <div class="upload-zone" [class.upload-zone--filled]="documentName()" [class.upload-zone--error]="docError()">
+                  <label class="upload-label" for="docInput" aria-label="Upload academic document">
+
+                    @if (documentName()) {
+                      <div class="doc-preview">
+                        <div class="doc-icon" aria-hidden="true">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#6366f1" stroke-width="1.8"/>
+                            <path d="M14 2v6h6M16 13H8M16 17H8" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                        <p class="doc-name">{{ documentName() }}</p>
+                        <button type="button" class="preview-remove preview-remove--doc"
+                          (click)="clearDocument(); $event.stopPropagation()"
+                          aria-label="Remove document">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <p class="upload-replace">Click to replace</p>
+                    } @else {
+                      <div class="upload-placeholder">
+                        <div class="upload-icon upload-icon--doc" aria-hidden="true">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.6"/>
+                            <path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                        <p class="upload-title">Academic Document <span class="req">*</span></p>
+                        <p class="upload-hint">PDF, JPG, PNG · Max 5 MB</p>
+                        <span class="upload-btn-label">Choose file</span>
+                      </div>
+                    }
+
+                    <input id="docInput" type="file" accept=".pdf,image/jpeg,image/png"
+                      class="file-hidden" (change)="onDocumentChange($event)"
+                      aria-label="Upload academic document"/>
+                  </label>
+
+                  @if (docError()) {
+                    <p class="ferr ferr--upload" role="alert">{{ docError() }}</p>
+                  }
+                </div>
+
+              </div><!-- /upload-grid -->
+
+              <!-- Review summary -->
+              <div class="review-summary">
+                <h3>Review Your Information</h3>
+                <div class="review-grid">
+                  <div class="review-item">
+                    <span class="rv-label">Full Name</span>
+                    <span class="rv-value">
+                      {{ form.controls.firstName.value }}
+                      {{ form.controls.middleName.value }}
+                      {{ form.controls.lastName.value }}
+                    </span>
+                  </div>
+                  <div class="review-item">
+                    <span class="rv-label">Email</span>
+                    <span class="rv-value">{{ form.controls.email.value }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="rv-label">Program</span>
+                    <span class="rv-value">{{ form.controls.desiredProgram.value }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="rv-label">{{ isHighSchool() ? 'Exam Score' : 'GPA' }}</span>
+                    <span class="rv-value">{{ isHighSchool() ? form.controls.examScore.value : form.controls.gpa.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ── Step nav buttons ─────────────────────────────── -->
+          <div class="step-footer">
+            @if (currentStep() > 1) {
+              <button type="button" class="btn btn--ghost" (click)="prev()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back
+              </button>
+            } @else {
+              <div></div>
+            }
+
+            <div class="step-dots" aria-hidden="true">
+              @for (s of [1,2,3,4]; track s) {
+                <div class="step-dot"
+                  [class.step-dot--active]="currentStep() === s"
+                  [class.step-dot--done]="currentStep() > s"
+                ></div>
+              }
+            </div>
+
+            @if (currentStep() < TOTAL_STEPS) {
+              <button type="submit" class="btn btn--primary">
+                Continue
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            } @else {
+              <button type="submit" class="btn btn--primary btn--submit"
+                [disabled]="isSubmitting()">
+                @if (isSubmitting()) {
+                  <span class="spinner" aria-hidden="true"></span>
+                  Submitting…
+                } @else {
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Submit Application
+                }
+              </button>
+            }
+          </div>
+
+        </form>
+      </div><!-- /form-card -->
+    </main>
+  </div><!-- /signup-layout -->
+  }<!-- /else -->
+</div><!-- /signup-page -->

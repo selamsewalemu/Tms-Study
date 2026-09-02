@@ -2,72 +2,184 @@
   display: block;
 }
 
+/* ── Card ─────────────────────────────────────────────────────────── */
 .course-card {
-  min-height: 15rem;
-  padding: 1.25rem;
+  position: relative;
   display: flex;
   flex-direction: column;
-  border: 1px solid #c7d8cb;
-  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.11);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.70);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
 }
 
-.course-card.closed {
-  background: #edf0ed;
+.course-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.12);
+  transform: translateY(-2px);
 }
 
-h3 {
-  margin: 0;
-  font-family: Georgia, serif;
-  font-size: 1.35rem;
-  font-weight: 400;
+.course-card--full {
+  opacity: 0.72;
 }
 
-h3 a {
-  color: inherit;
-  text-decoration-thickness: 0.08em;
-  text-underline-offset: 0.18em;
+.course-card--full:hover {
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: none;
+  transform: none;
 }
 
-h3 span {
-  color: #a24d2d;
-  font-size: 0.9em;
+/* ── Coloured top strip ───────────────────────────────────────────── */
+.card-strip {
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #38bdf8);
+  flex-shrink: 0;
 }
 
-p {
-  margin: 1rem 0 0;
-  color: #52625a;
+.course-card--full .card-strip {
+  background: linear-gradient(90deg, #334155, #475569);
 }
 
-.course-status {
-  margin-top: auto;
-  color: #285c4b;
-  font-size: 0.8rem;
+/* ── Card body ────────────────────────────────────────────────────── */
+.card-body {
+  padding: 16px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+/* ── Head row ─────────────────────────────────────────────────────── */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-code {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.10);
+  padding: 2px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.04em;
+}
+
+.course-card--full .card-code {
+  color: #64748b;
+  background: rgba(100, 116, 139, 0.10);
+}
+
+/* ── Status badge ─────────────────────────────────────────────────── */
+.card-status-badge {
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 20px;
 }
 
-.closed .course-status {
-  color: #6a716d;
+.card-status-badge--open {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
 }
 
-button {
-  margin-top: 1rem;
-  border: 0;
-  padding: 0.75rem 1rem;
-  color: #fffaf3;
-  background: #a24d2d;
-  font: inherit;
+.card-status-badge--full {
+  background: rgba(100, 116, 139, 0.12);
+  color: #94a3b8;
+}
+
+/* ── Title ────────────────────────────────────────────────────────── */
+.card-title {
+  font-size: 1rem;
   font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.card-title-link {
+  color: #e2e8f0;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.card-title-link:hover {
+  color: #a5b4fc;
+}
+
+.course-card--full .card-title-link {
+  color: #64748b;
+}
+
+/* ── Capacity ─────────────────────────────────────────────────────── */
+.capacity-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: auto;
+}
+
+.capacity-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(148, 163, 184, 0.10);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.capacity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #38bdf8);
+  border-radius: 2px;
+  transition: width 500ms ease;
+}
+
+.course-card--full .capacity-fill {
+  background: #334155;
+}
+
+.capacity-label {
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+/* ── Enroll button ────────────────────────────────────────────────── */
+.enroll-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 0;
+  background: rgba(99, 102, 241, 0.10);
+  color: #a5b4fc;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
 }
 
-button:hover:not(:disabled) {
-  background: #823d24;
+.enroll-btn:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.22);
+  color: #c7d2fe;
 }
 
-button:disabled {
-  color: #68736d;
-  background: #d2d8d3;
+.enroll-btn:disabled {
+  background: rgba(100, 116, 139, 0.06);
+  color: #475569;
   cursor: not-allowed;
 }

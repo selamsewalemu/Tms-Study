@@ -1,60 +1,196 @@
-<main class="dashboard-shell">
-  <section class="dashboard-panel" aria-labelledby="dashboard-title">
-    <p class="eyebrow">Training Management System</p>
-    <h1 id="dashboard-title">Welcome, {{ studentName() }}</h1>
+<div class="sd-layout">
 
-    <div class="status-grid">
-      <article class="metric-card">
-        <span class="metric-label">Credits earned</span>
-        <strong>{{ earnedCredits() }}</strong>
-        <span class="metric-note">of 120 required</span>
-      </article>
-      <article class="metric-card accent-card">
-        <span class="metric-label">Graduation status</span>
-        <strong>{{ graduationStatus() }}</strong>
-        <span class="metric-note">Keep your learning momentum</span>
-      </article>
+  <!-- Ambient orbs -->
+  <div class="orb orb--1" aria-hidden="true"></div>
+  <div class="orb orb--2" aria-hidden="true"></div>
+
+  <!-- ── Top bar ──────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="9" fill="url(#sd-grad)"/>
+          <path d="M10 13h16M10 18h10M10 23h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="sd-grad" x1="0" y1="0" x2="36" y2="36">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="brand-name">TMS Portal</span>
     </div>
 
-    <button type="button" (click)="registerForClass()">
-      Register for a class <span aria-hidden="true">+3</span>
-    </button>
+    <nav class="topbar-nav" aria-label="Student navigation">
+      <a routerLink="/student-dashboard" class="nav-link nav-link--active">Dashboard</a>
+      <a routerLink="/enroll" class="nav-link">Enroll</a>
+    </nav>
 
-    <section class="catalog" aria-labelledby="catalog-title">
-      <h2 id="catalog-title">Course Catalog</h2>
+    <div class="topbar-right">
+      <div class="user-pill">
+        <div class="user-avatar" aria-hidden="true">
+          {{ studentName()[0]?.toUpperCase() }}
+        </div>
+        <span class="user-name">{{ studentName() }}</span>
+      </div>
+      <button type="button" class="logout-btn" (click)="logout()" aria-label="Log out">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Logout
+      </button>
+    </div>
+  </header>
 
-      @if (coursesResource.isLoading()) {
-        <p class="loading-message">Fetching courses from the server...</p>
-      } @else if (coursesResource.error()) {
-        <article class="error-message">
-          <p>
-            Could not load courses. Make sure your .NET API is running on
-            http://localhost:5000.
-          </p>
+  <!-- ── Hero / welcome ───────────────────────────────────────── -->
+  <main class="sd-main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-text">
+        <p class="hero-eyebrow">Training Management System</p>
+        <h1 id="hero-title">Welcome back, <br /><span class="hero-name">{{ studentName() }}</span></h1>
+        <p class="hero-sub">Track your courses, manage enrollments, and stay on top of your academic progress.</p>
+
+        <div class="hero-actions">
+          <button type="button" class="btn btn--primary" (click)="registerForClass()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+            Register for a class
+          </button>
+          <button type="button" class="btn btn--ghost" (click)="submitSelectedRequests()">
+            Submit selected requests
+          </button>
+        </div>
+      </div>
+
+      <!-- Metric cards -->
+      <div class="metrics-grid">
+        <article class="metric-card">
+          <div class="metric-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" stroke="#6366f1" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="metric-body">
+            <span class="metric-value">{{ earnedCredits() }}</span>
+            <span class="metric-label">Credits Earned</span>
+            <div class="metric-progress" role="progressbar" [attr.aria-valuenow]="earnedCredits()" aria-valuemin="0" aria-valuemax="120" [attr.aria-label]="earnedCredits() + ' of 120 credits'">
+              <div class="metric-progress-bar" [style.width.%]="(earnedCredits() / 120) * 100"></div>
+            </div>
+            <span class="metric-note">of 120 required</span>
+          </div>
         </article>
-      } @else {
-        @if (coursesResource.value()!.length === 0) {
-          <p>No courses are available this term. Check back during registration.</p>
-        } @else {
-          <div class="course-grid">
-            @for (course of coursesResource.value()!; track course.id) {
-              <tms-course-card
-                [course]="course"
-                (enrollClicked)="handleEnroll($event)"
-              />
-            } @empty {
-              <p>No results match your search.</p>
+
+        <article class="metric-card metric-card--accent">
+          <div class="metric-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="#22c55e" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M22 4L12 14.01l-3-3" stroke="#22c55e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="metric-body">
+            <span class="metric-value metric-value--sm">{{ graduationStatus() }}</span>
+            <span class="metric-label">Graduation Status</span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#fbbf24" stroke-width="1.6"/>
+              <path d="M12 8v4l3 3" stroke="#fbbf24" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="metric-body">
+            <span class="metric-value">{{ requestedSubjects().length }}</span>
+            <span class="metric-label">Pending Requests</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Pending requests banner ─────────────────────────── -->
+    @if (requestedSubjects().length) {
+      <section class="pending-banner" aria-label="Pending enrollment requests" aria-live="polite">
+        <div class="pending-banner-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="pending-banner-body">
+          <strong>{{ requestedSubjects().length }} enrollment request{{ requestedSubjects().length > 1 ? 's' : '' }} awaiting approval</strong>
+          <ul class="pending-list">
+            @for (subject of requestedSubjects(); track subject.id) {
+              <li>{{ subject.courseName }}</li>
             }
+          </ul>
+        </div>
+      </section>
+    }
+
+    <!-- ── Course catalogue ─────────────────────────────────── -->
+    <section class="catalog" aria-labelledby="catalog-title">
+      <div class="catalog-header">
+        <div>
+          <h2 id="catalog-title">Course Catalogue</h2>
+          @if (!coursesResource.isLoading() && allCourses().length > 0) {
+            <p class="catalog-sub">{{ allCourses().length }} courses available this term</p>
+          }
+        </div>
+        @if (selectedCourse()) {
+          <div class="last-enrolled" role="status">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Last enrolled: <strong>{{ selectedCourse()!.title }}</strong>
           </div>
         }
-      }
+      </div>
 
-      @if (selectedCourse(); as picked) {
-        <p class="selection-hint">
-          Last enrollment request: <strong>{{ picked.title }}</strong>
-          ({{ picked.code }})
-        </p>
+      @if (coursesResource.isLoading()) {
+        <div class="catalog-state">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Loading courses from server…</span>
+        </div>
+      } @else if (coursesResource.error()) {
+        <div class="catalog-state catalog-state--error" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Could not load courses. Make sure the API is running on <code>http://localhost:5000</code>.</span>
+        </div>
+      } @else if (allCourses().length === 0) {
+        <div class="catalog-state">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="#475569" stroke-width="1.8"/>
+            <path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 0 0 5 0" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          No courses are available this term.
+        </div>
+      } @else {
+        <div class="course-grid">
+          @for (course of pagedCourses(); track course.id) {
+            <tms-course-card [course]="course" (enrollClicked)="handleEnroll($event)" />
+          }
+        </div>
+
+        <div class="pagination" aria-label="Course pagination">
+          <button type="button" class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)" aria-label="Previous page">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <span class="page-indicator">Page {{ currentPage() }} of {{ totalPages() }}</span>
+          <button type="button" class="page-btn" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)" aria-label="Next page">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
       }
     </section>
-  </section>
-</main>
+  </main>
+</div>

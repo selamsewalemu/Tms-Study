@@ -1,26 +1,139 @@
-<section class="login-shell">
-  <div class="login-card">
-    <h1>Welcome back</h1>
-    <p>Sign in to continue to TMS</p>
+<div class="login-page">
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label>
-        <span>Username</span>
-        <input type="text" formControlName="username" autocomplete="username" placeholder="Enter username" />
-      </label>
+  <!-- Ambient background orbs -->
+  <div class="orb orb--1" aria-hidden="true"></div>
+  <div class="orb orb--2" aria-hidden="true"></div>
+  <div class="orb orb--3" aria-hidden="true"></div>
 
-      <label>
-        <span>Password</span>
-        <input type="password" formControlName="password" autocomplete="current-password" placeholder="Enter password" />
-      </label>
+  <main class="login-wrap">
 
-      @if (errorMessage) {
-        <div class="error-message">{{ errorMessage }}</div>
-      }
+    <!-- Brand mark -->
+    <div class="brand-mark" aria-hidden="true">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="10" fill="url(#brand-grad)"/>
+        <path d="M10 13h16M10 18h10M10 23h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="brand-grad" x1="0" y1="0" x2="36" y2="36">
+            <stop offset="0%" stop-color="#6366f1"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
 
-      <button type="submit" [disabled]="isSubmitting">
-        {{ isSubmitting ? "Signing in..." : "Sign in" }}
-      </button>
-    </form>
-  </div>
-</section>
+    <header class="login-header">
+      <h1>TMS Core</h1>
+      <p>Training Management System — sign in to continue</p>
+    </header>
+
+    <div class="login-card">
+
+      <!-- Demo credentials hint -->
+      <div class="demo-hint" role="note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Demo: <code>admin / admin123</code> &nbsp;·&nbsp; <code>student / student123</code>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="login-form">
+
+        <div class="field">
+          <label for="username">Username</label>
+          <div class="input-wrap" [class.input-wrap--error]="form.controls.username.invalid && form.controls.username.touched">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              autocomplete="username"
+              placeholder="Enter your username"
+              [attr.aria-invalid]="form.controls.username.invalid && form.controls.username.touched"
+            />
+          </div>
+          @if (form.controls.username.invalid && form.controls.username.touched) {
+            <span class="field-error" role="alert">Username is required</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap" [class.input-wrap--error]="form.controls.password.invalid && form.controls.password.touched">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="Enter your password"
+              [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+            />
+          </div>
+          @if (form.controls.password.invalid && form.controls.password.touched) {
+            <span class="field-error" role="alert">Password is required</span>
+          }
+        </div>
+
+        @if (errorMessage) {
+          <div class="alert-error" role="alert">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            {{ errorMessage }}
+          </div>
+        }
+
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+          @if (isSubmitting) {
+            <span class="spinner" aria-hidden="true"></span>
+            Signing in...
+          } @else {
+            Sign in
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          }
+        </button>
+
+      </form>
+    </div>
+
+    <div class="signup-prompt">
+      <span>New student?</span>
+      <a routerLink="/signup" class="signup-link">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M19 8v6M22 11h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Register your account
+      </a>
+    </div>
+
+    <div class="signup-prompt">
+      <span>Already applied?</span>
+      <a routerLink="/registration-status" class="signup-link signup-link--status">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/>
+          <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Check application status
+      </a>
+    </div>
+
+    <footer class="login-footer">
+      <span>© 2026 TMS Core</span>
+      <span>·</span>
+      <span>Training Management System</span>
+    </footer>
+
+  </main>
+</div>

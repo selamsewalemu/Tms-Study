@@ -1,13 +1,149 @@
-<section class="chart-container" aria-label="Enrollment analytics chart">
-  <h2>Enrollment Analytics</h2>
+<section class="chart-card" aria-label="Enrollment analytics">
 
-  <div class="chart-bars" aria-live="polite">
-    <div class="bar approved" [style.height.px]="approvedHeight()">Approved</div>
-    <div class="bar pending" [style.height.px]="pendingHeight()">Pending</div>
-    <div class="bar rejected" [style.height.px]="rejectedHeight()">Rejected</div>
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <div class="chart-header">
+    <div class="chart-header-text">
+      <p class="chart-eyebrow">Analytics</p>
+      <h2 class="chart-title">Enrollment Analytics</h2>
+    </div>
+    <div class="chart-total" aria-live="polite">
+      <span class="chart-total-value">{{ totalCount() }}</span>
+      <span class="chart-total-label">Total records</span>
+    </div>
   </div>
 
-  <div class="chart-summary">
-    Total records: {{ data().length }}
+  <!-- ── Body ────────────────────────────────────────────────── -->
+  <div class="chart-body">
+
+    <!-- SVG Donut Pie Chart -->
+    <div class="pie-wrap" role="img" [attr.aria-label]="'Enrollment distribution: ' + approvedCount() + ' approved, ' + pendingCount() + ' pending, ' + rejectedCount() + ' rejected'">
+      <svg
+        class="pie-svg"
+        viewBox="0 0 240 240"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <!-- Glow filters per status -->
+          <filter id="glow-approved" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-pending" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-rejected" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- Radial gradient fills -->
+          <radialGradient id="grad-approved" cx="50%" cy="40%" r="55%">
+            <stop offset="0%"   stop-color="#4ade80"/>
+            <stop offset="100%" stop-color="#15803d"/>
+          </radialGradient>
+          <radialGradient id="grad-pending" cx="50%" cy="40%" r="55%">
+            <stop offset="0%"   stop-color="#fde68a"/>
+            <stop offset="100%" stop-color="#d97706"/>
+          </radialGradient>
+          <radialGradient id="grad-rejected" cx="50%" cy="40%" r="55%">
+            <stop offset="0%"   stop-color="#fca5a5"/>
+            <stop offset="100%" stop-color="#dc2626"/>
+          </radialGradient>
+
+          <!-- Track circle clip -->
+          <clipPath id="donut-clip">
+            <circle cx="120" cy="120" r="95"/>
+          </clipPath>
+        </defs>
+
+        <!-- Background ring track -->
+        <circle
+          cx="120" cy="120" r="73"
+          fill="none"
+          stroke="rgba(148,163,184,0.07)"
+          stroke-width="44"
+        />
+
+        <!-- Pie slices -->
+        @for (slice of slices(); track slice.status) {
+          <path
+            class="pie-slice"
+            [class.pie-slice--hovered]="hoveredSlice() === slice.status"
+            [attr.d]="slice.path"
+            [attr.fill]="'url(#grad-' + slice.status.toLowerCase() + ')'"
+            [attr.stroke]="'rgba(2,8,23,0.5)'"
+            stroke-width="1.5"
+            [attr.filter]="hoveredSlice() === slice.status ? 'url(#glow-' + slice.status.toLowerCase() + ')' : null"
+            (mouseenter)="hoveredSlice.set(slice.status)"
+            (mouseleave)="hoveredSlice.set(null)"
+            (focus)="hoveredSlice.set(slice.status)"
+            (blur)="hoveredSlice.set(null)"
+            tabindex="0"
+            role="graphics-symbol"
+            [attr.aria-label]="slice.status + ': ' + slice.count + ' (' + slice.percentage + '%)'"
+          />
+        }
+
+        <!-- Centre donut label -->
+        <circle cx="120" cy="120" r="50" fill="rgba(8,15,30,0.90)"/>
+
+        @if (tooltip(); as tip) {
+          <!-- Hovered state: show slice detail -->
+          <text x="120" y="111" class="donut-center-value" [attr.fill]="tip.color">
+            {{ tip.count }}
+          </text>
+          <text x="120" y="128" class="donut-center-label">{{ tip.status }}</text>
+          <text x="120" y="143" class="donut-center-pct" [attr.fill]="tip.color">{{ tip.percentage }}%</text>
+        } @else {
+          <!-- Default state: show total -->
+          <text x="120" y="114" class="donut-center-value">{{ totalCount() }}</text>
+          <text x="120" y="132" class="donut-center-label">Records</text>
+        }
+      </svg>
+    </div>
+
+    <!-- Legend + breakdown -->
+    <div class="chart-legend">
+
+      <!-- Legend items -->
+      @for (slice of slices(); track slice.status) {
+        <div
+          class="legend-item"
+          [class.legend-item--active]="hoveredSlice() === slice.status"
+          [class.legend-item--dimmed]="hoveredSlice() !== null && hoveredSlice() !== slice.status"
+          (mouseenter)="hoveredSlice.set(slice.status)"
+          (mouseleave)="hoveredSlice.set(null)"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="slice.status + ': ' + slice.count + ' enrollments, ' + slice.percentage + '%'"
+        >
+          <div class="legend-indicator" [style.background]="slice.color"></div>
+          <div class="legend-body">
+            <span class="legend-status">{{ slice.status }}</span>
+            <div class="legend-bar-wrap">
+              <div class="legend-bar">
+                <div
+                  class="legend-bar-fill"
+                  [style.width.%]="totalCount() > 0 ? slice.percentage : 33"
+                  [style.background]="slice.color"
+                ></div>
+              </div>
+              <span class="legend-pct">{{ totalCount() > 0 ? slice.percentage + '%' : '—' }}</span>
+            </div>
+          </div>
+          <div class="legend-count" [style.color]="slice.color">{{ slice.count }}</div>
+        </div>
+      }
+
+      <!-- Divider + total row -->
+      <div class="legend-total">
+        <span class="legend-total-label">Total records</span>
+        <span class="legend-total-value">{{ totalCount() }}</span>
+      </div>
+
+    </div>
   </div>
+
 </section>

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, signal, computed } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -6,6 +6,8 @@ import {
   ReactiveFormsModule,
   FormArray,
 } from "@angular/forms";
+import { Router } from "@angular/router";
+import { AuthService } from "../../services/auth.service";
 
 @Component({
   selector: "app-enrollment-form",
@@ -15,69 +17,85 @@ import {
   styleUrl: "./enrollment-form.component.scss",
 })
 export class EnrollmentFormComponent {
-  // inject(FormBuilder) is Angular's way of requesting a service.
-  // It is similar to constructor injection in .NET (like inject ILogger in a C# class).
-  // The "private" keyword means only this class can access it.
-  private fb = inject(FormBuilder);
+  private readonly fb     = inject(FormBuilder);
+  private readonly auth   = inject(AuthService);
+  private readonly router = inject(Router);
 
-  // A signal to track whether the form was submitted (for showing a success message)
-  submitted = signal(false);
+  readonly submitted   = signal(false);
+  readonly isSubmitting = signal(false);
 
-  // fb.nonNullable.group({...}) creates a form object in TypeScript code.
-  // "nonNullable" ensures that all values are typed as 'string' instead of 'string | null'
-  // this saves you from writing null-checking code everywhere.
-  //
-  // Each field is defined as: [defaultValue, validators]
-  // Validators are rules that the value must pass before the form is considered valid.
-  form = this.fb.nonNullable.group({
+  readonly studentName = computed(
+    () => this.auth.currentUser()?.displayName ?? "Student",
+  );
+
+  readonly TERMS = [
+    "Fall 2026",
+    "Spring 2027",
+    "Summer 2027",
+    "Fall 2027",
+  ];
+
+  readonly form = this.fb.nonNullable.group({
     studentId: [
       "",
       [Validators.required, Validators.pattern("^STU-[0-9]{4}$")],
     ],
-    //
-    //
-    // ^^ default value is empty string
-    // ^^ two validators: the field is required AND must
-    //    match the pattern STU-1234
-    courseId: ["", Validators.required],
-    term: ["Fall 2026", Validators.required], // Pre-filled with a default term
-    notes: [""], // No validators this field is optional
-    backupCourses: this.fb.array<FormControl<string>>([]), // Starts empty, user adds rows dynamically
+    courseId: ["", [Validators.required, Validators.minLength(3)]],
+    term:     ["Fall 2026", Validators.required],
+    notes:    [""],
+    backupCourses: this.fb.array<FormControl<string>>([]),
   });
 
-  // "get backups()" is a TypeScript property accessor it looks like a variable but runs a function.
-  // This is a shortcut so you can write "this.backups" instead of "this.form.controls.backupCourses"
-  get backups() {
+  get backups(): FormArray<FormControl<string>> {
     return this.form.controls.backupCourses;
   }
 
-  // Adds a new empty text input to the backup courses array
-  addBackup() {
+  /** Field-level helpers for cleaner template logic */
+  isInvalid(name: "studentId" | "courseId" | "term"): boolean {
+    const ctrl = this.form.controls[name];
+    return ctrl.invalid && ctrl.touched;
+  }
+
+  addBackup(): void {
     this.backups.push(
-      this.fb.control("", {
-        nonNullable: true,
-        validators: Validators.required,
-      }),
+      this.fb.control("", { nonNullable: true, validators: Validators.required }),
     );
   }
 
-  // Removes a specific backup course row by its position in the array
-  removeBackup(index: number) {
+  removeBackup(index: number): void {
     this.backups.removeAt(index);
   }
 
-  submit() {
-    if (this.form.valid) {
-      // getRawValue() extracts the full form data as a JSON object.
-      // IMPORTANT: Do NOT use .value here. If any field is disabled, .value silently
-      // drops that field from the object. getRawValue() always includes everything.
-      const payload = this.form.getRawValue();
-      console.log("Enrollment payload:", payload);
-      this.submitted.set(true);
-    } else {
-      // markAllAsTouched() forces Angular to show validation errors on every field.
-      // Without this call, Angular only shows errors on fields the user has clicked on.
+  async submit(): Promise<void> {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
     }
+
+    this.isSubmitting.set(true);
+
+    // Simulate async submission (replace with real HTTP call when ready)
+    await new Promise<void>((resolve) => setTimeout(resolve, 900));
+
+    const payload = this.form.getRawValue();
+    console.log("Enrollment payload:", payload);
+
+    this.isSubmitting.set(false);
+    this.submitted.set(true);
+  }
+
+  resetForm(): void {
+    this.form.reset({ term: "Fall 2026" });
+    while (this.backups.length) this.backups.removeAt(0);
+    this.submitted.set(false);
+  }
+
+  goBack(): void {
+    this.router.navigateByUrl("/student-dashboard");
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigateByUrl("/login");
   }
 }

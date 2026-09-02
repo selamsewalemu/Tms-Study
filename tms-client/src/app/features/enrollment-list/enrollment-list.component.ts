@@ -1,4 +1,4 @@
-import { Component, effect, inject, viewChild } from "@angular/core";
+import { Component, computed, effect, inject, viewChild } from "@angular/core";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
@@ -17,6 +17,13 @@ export class EnrollmentListComponent {
   readonly dataSource = new MatTableDataSource();
   readonly paginator = viewChild.required(MatPaginator);
   readonly sort = viewChild.required(MatSort);
+
+  readonly pendingCount = computed(
+    () => this.store.entities().filter((e) => e.status === "Pending").length,
+  );
+  readonly approvedCount = computed(
+    () => this.store.entities().filter((e) => e.status === "Approved").length,
+  );
 
   constructor() {
     effect(() => {

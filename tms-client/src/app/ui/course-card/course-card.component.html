@@ -1,30 +1,66 @@
 <article
   class="course-card"
-  [class.closed]="course().enrollmentCount >= course().maxCapacity"
+  [class.course-card--full]="course().enrollmentCount >= course().maxCapacity"
 >
-  <h3>
-    <a [routerLink]="['/courses', course().id]">
-      {{ course().title }} <span>({{ course().code }})</span>
-    </a>
-  </h3>
+  <!-- Status indicator strip -->
+  <div class="card-strip" aria-hidden="true"></div>
 
-  <p>
-    Enrolled {{ course().enrollmentCount }} of {{ course().maxCapacity }} seats
-  </p>
+  <div class="card-body">
+    <!-- Header -->
+    <div class="card-head">
+      <span class="card-code">{{ course().code }}</span>
+      <span class="card-status-badge"
+        [class.card-status-badge--open]="course().enrollmentCount < course().maxCapacity"
+        [class.card-status-badge--full]="course().enrollmentCount >= course().maxCapacity"
+      >
+        {{ course().enrollmentCount >= course().maxCapacity ? 'Full' : 'Open' }}
+      </span>
+    </div>
 
-  <p class="course-status">
-    {{
-      course().enrollmentCount >= course().maxCapacity
-        ? "Full"
-        : "Accepting enrollments"
-    }}
-  </p>
+    <!-- Title -->
+    <h3 class="card-title">
+      <a [routerLink]="['/courses', course().id]" class="card-title-link">
+        {{ course().title }}
+      </a>
+    </h3>
 
+    <!-- Capacity bar -->
+    <div class="capacity-wrap">
+      <div
+        class="capacity-bar"
+        role="progressbar"
+        [attr.aria-valuenow]="course().enrollmentCount"
+        [attr.aria-valuemax]="course().maxCapacity"
+        [attr.aria-label]="course().enrollmentCount + ' of ' + course().maxCapacity + ' seats filled'"
+      >
+        <div
+          class="capacity-fill"
+          [style.width.%]="(course().enrollmentCount / course().maxCapacity) * 100"
+        ></div>
+      </div>
+      <span class="capacity-label">{{ course().enrollmentCount }} / {{ course().maxCapacity }} seats</span>
+    </div>
+  </div>
+
+  <!-- Enroll button -->
   <button
     type="button"
+    class="enroll-btn"
     [disabled]="course().enrollmentCount >= course().maxCapacity"
     (click)="enrollClicked.emit(course())"
+    [attr.aria-label]="'Enroll in ' + course().title"
   >
-    Enroll
+    @if (course().enrollmentCount >= course().maxCapacity) {
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      Course full
+    } @else {
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      Enroll now
+    }
   </button>
 </article>

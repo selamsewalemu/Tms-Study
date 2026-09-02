@@ -1,0 +1,281 @@
+<div class="rs-page">
+  <div class="orb orb--1" aria-hidden="true"></div>
+  <div class="orb orb--2" aria-hidden="true"></div>
+
+  <!-- ── Top bar ──────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <svg width="20" height="20" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+        <rect width="36" height="36" rx="9" fill="url(#rs-grad)"/>
+        <path d="M10 13h16M10 18h10M10 23h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="rs-grad" x1="0" y1="0" x2="36" y2="36">
+            <stop offset="0%" stop-color="#6366f1"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span>TMS Core</span>
+    </div>
+    <nav class="topbar-nav" aria-label="Quick links">
+      <a routerLink="/login"  class="topbar-link">Sign in</a>
+      <a routerLink="/signup" class="topbar-link topbar-link--outline">Register</a>
+    </nav>
+  </header>
+
+  <!-- ── Main ─────────────────────────────────────────────────── -->
+  <main class="rs-main">
+
+    <!-- Page heading -->
+    <div class="page-head">
+      <p class="eyebrow">Student Portal</p>
+      <h1>Check Application Status</h1>
+      <p class="page-sub">Enter your Reference ID to see whether your registration has been approved, rejected, or is still under review.</p>
+    </div>
+
+    <!-- Lookup card -->
+    <div class="lookup-card">
+      <label class="lookup-label" for="refInput">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M14 2v6h6M12 11v6M9 14l3-3 3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Reference ID
+      </label>
+      <div class="lookup-row">
+        <input
+          id="refInput"
+          type="text"
+          class="lookup-input"
+          placeholder="e.g. REG-1704123456789"
+          [(ngModel)]="refInput"
+          (keydown.enter)="lookup()"
+          autocomplete="off"
+          aria-label="Enter your registration reference ID"
+          [attr.aria-describedby]="searched() && !result() ? 'lookup-error' : null"
+        />
+        <button type="button" class="lookup-btn" (click)="lookup()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/>
+            <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Check Status
+        </button>
+      </div>
+
+      @if (searched() && !result()) {
+        <p id="lookup-error" class="lookup-error" role="alert">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          No application found for that Reference ID. Please check and try again.
+        </p>
+      }
+    </div>
+
+    <!-- ── Result card ───────────────────────────────────────── -->
+    @if (result(); as reg) {
+      @if (statusConfig(); as cfg) {
+        <div class="result-card" [style.--status-color]="cfg.color" [style.--status-bg]="cfg.bg" [style.--status-border]="cfg.border">
+
+          <!-- Status banner -->
+          <div class="status-banner">
+            <div class="status-icon-ring" aria-hidden="true">
+              @if (cfg.icon === 'check') {
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              } @else if (cfg.icon === 'x') {
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                </svg>
+              } @else {
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              }
+            </div>
+            <div>
+              <h2 class="status-title">{{ cfg.title }}</h2>
+              <p class="status-body">{{ cfg.body }}</p>
+            </div>
+          </div>
+
+          <!-- Applicant summary row -->
+          <div class="applicant-row">
+            @if (reg.photoDataUrl) {
+              <img class="applicant-photo" [src]="reg.photoDataUrl" [alt]="reg.firstName"/>
+            } @else {
+              <div class="applicant-photo applicant-photo--placeholder" aria-hidden="true">
+                {{ reg.firstName[0]?.toUpperCase() }}
+              </div>
+            }
+            <div class="applicant-info">
+              <strong>{{ reg.firstName }} {{ reg.middleName }} {{ reg.lastName }}</strong>
+              <span>{{ reg.email }}</span>
+              <span>{{ reg.desiredProgram }} · Submitted {{ formatDate(reg.submittedAt) }}</span>
+            </div>
+            <span class="applicant-ref">{{ reg.id }}</span>
+          </div>
+
+          <!-- ── APPROVED: show login credentials ────────────── -->
+          @if (reg.status === 'Approved') {
+            <div class="credentials-section" aria-label="Your login credentials">
+              <div class="cred-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Your Login Credentials</span>
+                <span class="cred-save-hint">Save these — you will need them to sign in</span>
+              </div>
+
+              <div class="cred-grid">
+                <!-- Username -->
+                <div class="cred-item">
+                  <span class="cred-label">Username</span>
+                  <div class="cred-value-row">
+                    <code class="cred-value">{{ reg.username }}</code>
+                    <button
+                      type="button"
+                      class="copy-btn"
+                      (click)="copy('username', reg.username)"
+                      [attr.aria-label]="'Copy username'"
+                    >
+                      @if (copied() === 'username') {
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M5 13l4 4L19 7" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Copied!
+                      } @else {
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        Copy
+                      }
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div class="cred-item">
+                  <span class="cred-label">Password</span>
+                  <div class="cred-value-row">
+                    <code class="cred-value cred-value--pwd">
+                      {{ showPwd() ? reg.generatedPassword : '••••••••••••' }}
+                    </code>
+                    <button
+                      type="button"
+                      class="copy-btn copy-btn--ghost"
+                      (click)="togglePwd()"
+                      [attr.aria-label]="showPwd() ? 'Hide password' : 'Show password'"
+                    >
+                      @if (showPwd()) {
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          <path d="M1 1l22 22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                        Hide
+                      } @else {
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.8"/>
+                          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        Show
+                      }
+                    </button>
+                    @if (showPwd()) {
+                      <button
+                        type="button"
+                        class="copy-btn"
+                        (click)="copy('password', reg.generatedPassword)"
+                        [attr.aria-label]="'Copy password'"
+                      >
+                        @if (copied() === 'password') {
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 13l4 4L19 7" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          Copied!
+                        } @else {
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8"/>
+                          </svg>
+                          Copy
+                        }
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div class="cred-warning" role="note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Keep your credentials private. You can change your password after signing in.
+              </div>
+
+              <a routerLink="/login" class="signin-cta">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Sign in to TMS Portal
+              </a>
+            </div>
+          }
+
+          <!-- ── REJECTED: show reason ────────────────────────── -->
+          @if (reg.status === 'Rejected' && reg.adminNote) {
+            <div class="rejection-note" role="note">
+              <p class="rejection-note-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Reason from admissions
+              </p>
+              <p class="rejection-note-text">{{ reg.adminNote }}</p>
+              <a routerLink="/signup" class="reapply-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M19 8v6M22 11h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Submit a new application
+              </a>
+            </div>
+          }
+
+          <!-- ── PENDING: next steps ─────────────────────────── -->
+          @if (reg.status === 'Pending') {
+            <div class="pending-steps">
+              @for (step of [
+                { n:'1', text:'Application submitted and queued for review' },
+                { n:'2', text:'Admissions team reviews your documents and scores' },
+                { n:'3', text:'Decision emailed to ' + reg.email },
+                { n:'4', text:'Approved? Your login credentials appear here' }
+              ]; track step.n) {
+                <div class="pending-step">
+                  <div class="pending-step-num">{{ step.n }}</div>
+                  <span>{{ step.text }}</span>
+                </div>
+              }
+            </div>
+          }
+
+        </div><!-- /result-card -->
+      }
+    }
+
+    <!-- Footer nav -->
+    <div class="rs-footer">
+      <a routerLink="/login"  class="footer-link">← Back to sign in</a>
+      <a routerLink="/signup" class="footer-link">Register new application →</a>
+    </div>
+
+  </main>
+</div>

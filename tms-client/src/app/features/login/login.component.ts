@@ -1,13 +1,13 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
 
 @Component({
   selector: "app-login",
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: "./login.component.html",
   styleUrl: "./login.component.scss",
 })
@@ -36,7 +36,10 @@ export class LoginComponent {
 
     try {
       await this.authService.login(this.form.getRawValue());
-      await this.router.navigateByUrl("/dashboard");
+
+      const role = this.authService.currentUser()?.role ?? "Student";
+      const targetRoute = role === "Admin" || role === "Instructor" ? "/dashboard" : "/student-dashboard";
+      await this.router.navigateByUrl(targetRoute);
     } catch {
       this.errorMessage = "Invalid username or password. Please try again.";
     } finally {
