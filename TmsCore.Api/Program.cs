@@ -658,9 +658,24 @@ webBuilder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Validation
 webBuilder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // Module 5 Exercise 1: Register the PostgreSQL-backed context as scoped per request.
+string databaseProvider = webBuilder.Configuration["DatabaseProvider"]?.Trim() ?? "Local";
+string databaseConnectionName = databaseProvider.ToLowerInvariant() switch
+{
+	"local" => "LocalDatabase",
+	"neon" => "NeonDatabase",
+	_ => throw new InvalidOperationException(
+		$"Unsupported DatabaseProvider '{databaseProvider}'. Use 'Local' or 'Neon'.")
+};
+string? databaseConnection = webBuilder.Configuration.GetConnectionString(databaseConnectionName);
+if (string.IsNullOrWhiteSpace(databaseConnection))
+{
+	throw new InvalidOperationException(
+		$"ConnectionStrings:{databaseConnectionName} is required when DatabaseProvider is '{databaseProvider}'.");
+}
+
 webBuilder.Services.AddDbContext<TmsDbContext>(options =>
 {
-	options.UseNpgsql(webBuilder.Configuration.GetConnectionString("TmsDatabase"));
+	options.UseNpgsql(databaseConnection);
 	if (webBuilder.Environment.IsDevelopment())
 	{
 		options.LogTo(Console.WriteLine, LogLevel.Information);
