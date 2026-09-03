@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────────────────────
 # Stage 1: Build Angular SPA
 # ──────────────────────────────────────────────────────────────
-FROM node:20-alpine AS spa-build
+FROM node:22-alpine AS spa-build
 WORKDIR /spa
 
 # Install dependencies first (layer cache)
