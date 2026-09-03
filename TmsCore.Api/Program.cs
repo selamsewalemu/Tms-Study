@@ -702,8 +702,16 @@ WebApplication webApp = webBuilder.Build();
 webApp.UseMiddleware<RequestLoggingMiddleware>();
 webApp.UseExceptionHandler();
 webApp.UseMiddleware<V1DeprecationMiddleware>();
-webApp.UseStatusCodePages();
-webApp.UseHttpsRedirection();
+
+// Only redirect to HTTPS locally — Render terminates TLS at the edge.
+// The container only speaks HTTP:8080, so redirecting causes an infinite loop.
+if (webApp.Environment.IsDevelopment())
+{
+    webApp.UseHttpsRedirection();
+}
+
+webApp.UseDefaultFiles();
+webApp.UseStaticFiles();   // serves wwwroot (Angular SPA)
 webApp.Use(async (context, next) =>
 {
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -772,6 +780,12 @@ if (webApp.Environment.IsDevelopment())
 
 // Exercise 5: Map controller-based CRUD endpoints after authentication and authorization.
 webApp.MapControllers();
+
+// ── Health check (Render probes this before marking the service live) ──────────
+webApp.MapGet("/health", () => Results.Ok(new { status = "healthy", utc = DateTime.UtcNow }));
+
+// ── SPA fallback — any unmatched route returns index.html so Angular routing works
+webApp.MapFallbackToFile("index.html");
 
 // Module 5 Exercise 2: Apply migrations and seed data only when explicitly enabled.
 if (Environment.GetEnvironmentVariable("TMS_AUTO_MIGRATE") == "true")
