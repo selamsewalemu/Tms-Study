@@ -5,8 +5,8 @@ FROM node:22-alpine AS spa-build
 WORKDIR /spa
 
 # Install dependencies first (layer cache)
-COPY tms-client/package*.json ./
-RUN npm ci --silent
+COPY tms-client/package*.json tms-client/.npmrc ./
+RUN npm ci
 
 # Copy source and build for production
 COPY tms-client/ ./
