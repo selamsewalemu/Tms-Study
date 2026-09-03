@@ -20,7 +20,6 @@ export const appConfig: ApplicationConfig = {
       }),
     ),
     provideServiceWorker("ngsw-worker.js", {
-      // Only register the service worker in production
       enabled: !isDevMode(),
       registrationStrategy: "registerWhenStable:30000",
     }),
