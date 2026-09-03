@@ -10,7 +10,7 @@ export class LiveSyncService {
   readonly state = signal<LiveSyncState>("disconnected");
 
   private readonly hubConnection: HubConnection = new HubConnectionBuilder()
-    .withUrl("https://localhost:5001/hubs/tms?studentId=42")
+    .withUrl("/hubs/tms?studentId=42")
     .withAutomaticReconnect()
     .build();
 

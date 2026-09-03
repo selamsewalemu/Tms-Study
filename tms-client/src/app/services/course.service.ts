@@ -1,13 +1,12 @@
-import { Service, inject } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { map } from "rxjs/operators";
-import { environment } from "../../environments/environment";
 import { Course, CourseDetail, PagedResponse } from "../models/course.model";
 
-@Service()
+@Injectable({ providedIn: "root" })
 export class CourseService {
   private http = inject(HttpClient);
-  private readonly base = `${environment.apiUrl}/courses`;
+  private readonly base = `/api/courses`;
 
   getAll(page = 1, pageSize = 50) {
     return this.http
