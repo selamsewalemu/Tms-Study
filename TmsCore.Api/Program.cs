@@ -718,7 +718,17 @@ webApp.Use(async (context, next) =>
     context.Response.Headers["X-Frame-Options"] = "DENY";
     context.Response.Headers["Referrer-Policy"] = "no-referrer";
     context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
-    context.Response.Headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none';";
+    // Angular bundles use hashed chunk filenames loaded from the same origin.
+    // 'unsafe-inline' is NOT needed — Angular CLI does not use inline scripts in
+    // production. The connect-src directive allows SignalR WebSocket connections.
+    context.Response.Headers["Content-Security-Policy"] =
+        "default-src 'self'; " +
+        "script-src 'self'; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data: blob:; " +
+        "font-src 'self' data:; " +
+        "connect-src 'self' wss: ws:; " +
+        "frame-ancestors 'none';";
     await next();
 });
 webApp.UseRouting();
