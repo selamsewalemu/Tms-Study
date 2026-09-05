@@ -2,7 +2,7 @@
   "hash": "166a3a7c",
   "configHash": "6edeeaf1",
   "lockfileHash": "d217a3bb",
-  "browserHash": "ed02e0ba",
+  "browserHash": "a055a396",
   "optimized": {
     "@angular/cdk/bidi": {
       "src": "../../../../../../node_modules/@angular/cdk/fesm2022/bidi.mjs",
