@@ -42,10 +42,9 @@ WORKDIR /app
 # Render terminates TLS at the edge — the container only needs HTTP
 ENV ASPNETCORE_HTTP_PORTS=8080
 ENV ASPNETCORE_ENVIRONMENT=Production
-# Use the Neon cloud database (override with Render env var if needed)
-ENV DatabaseProvider=Neon
 # Run migrations + seed on every cold start (DataSeeder is idempotent)
 ENV TMS_AUTO_MIGRATE=true
+# NOTE: Set ConnectionStrings__NeonDatabase on the Render dashboard.
 
 EXPOSE 8080
 
