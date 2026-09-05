@@ -833,15 +833,20 @@ if (Environment.GetEnvironmentVariable("TMS_AUTO_MIGRATE") == "true")
 	}
 }
 
-// Module 6 Exercise 4 setup: Seed the deterministic course catalogue only in Development.
-if (webApp.Environment.IsDevelopment())
+// Seed the deterministic course catalogue in all environments.
+// Idempotent — bails out immediately if any course already exists.
 {
-	// Question 1: Create a scope because TmsDbContext is registered as scoped.
-	using IServiceScope seederScope = webApp.Services.CreateScope();
-	// Question 2: Resolve the scoped context from the temporary scope.
-	TmsDbContext seederContext = seederScope.ServiceProvider.GetRequiredService<TmsDbContext>();
-	// Question 3: Apply migrations and insert the 25 courses idempotently.
-	await DataSeeder.SeedAsync(seederContext);
+    using IServiceScope seederScope = webApp.Services.CreateScope();
+    TmsDbContext seederContext = seederScope.ServiceProvider.GetRequiredService<TmsDbContext>();
+    try
+    {
+        await DataSeeder.SeedAsync(seederContext);
+    }
+    catch (Exception ex)
+    {
+        // Log and continue — the app should still start even if seeding fails.
+        webApp.Logger.LogWarning(ex, "DataSeeder failed — the database may be unreachable or already seeded.");
+    }
 }
 
 await webApp.RunAsync();
