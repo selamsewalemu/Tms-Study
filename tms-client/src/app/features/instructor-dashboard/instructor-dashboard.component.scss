@@ -893,26 +893,209 @@ tbody tr.row--editing {
   }
 }
 
+/* ── Mobile: sidebar becomes a bottom tab bar ─────────────────────── */
 @media (max-width: 768px) {
+
+  /* Layout: stack vertically, leave room for tab bar */
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  /* Convert sidebar to a fixed bottom tab bar */
   .sidebar {
-    display: none; /* Mobile: hide sidebar (can add hamburger in future) */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    height: auto;
+    width: 100%;
+    flex-direction: row;
+    align-items: stretch;
+    border-right: none;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    background: rgba(9, 15, 30, 0.97);
+    backdrop-filter: blur(16px);
+    z-index: 100;
+    overflow: visible;
+    padding: 0;
   }
 
+  /* Hide brand and user footer on mobile — not needed in tab bar */
+  .sidebar-brand,
+  .sidebar-footer {
+    display: none;
+  }
+
+  /* Nav becomes a horizontal row of equal tabs */
+  .sidebar-nav {
+    flex-direction: row;
+    flex: 1;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Each nav item is a vertical tab */
+  .nav-item {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px 10px;
+    border-radius: 0;
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-align: center;
+    height: 60px;
+    min-width: 0;
+    position: relative;
+    letter-spacing: 0.01em;
+    color: #64748b;
+  }
+
+  .nav-item:hover {
+    background: rgba(148, 163, 184, 0.06);
+    color: #94a3b8;
+  }
+
+  /* Active tab: indigo underline + bright text */
+  .nav-item--active {
+    background: transparent;
+    color: #a5b4fc;
+  }
+
+  .nav-item--active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 2px;
+    background: #6366f1;
+    border-radius: 0 0 2px 2px;
+  }
+
+  .nav-item--active svg {
+    color: #818cf8;
+  }
+
+  /* Badge: small dot in top-right of icon */
+  .nav-badge {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 16px);
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.58rem;
+    padding: 0 4px;
+    margin-left: 0;
+  }
+
+  /* Push main content up so it isn't hidden behind the tab bar */
   .main-area {
-    padding-bottom: 32px;
+    padding-bottom: 76px;
+    width: 100%;
   }
 
-  .topbar, .kpi-row, .panel {
-    padding-left: 16px;
-    padding-right: 16px;
+  /* Reduce horizontal padding on small screens */
+  .topbar {
+    padding: 16px 14px 0;
+  }
+
+  .page-title {
+    font-size: 1.15rem;
+  }
+
+  .page-subtitle,
+  .breadcrumb {
+    display: none;
   }
 
   .kpi-row {
+    padding: 14px 14px;
     gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
+  .kpi-row::-webkit-scrollbar { display: none; }
+
   .kpi-card {
-    flex: 1 1 140px;
+    flex: 0 0 150px;
+    padding: 12px 14px;
+  }
+
+  .kpi-value {
+    font-size: 1.35rem;
+  }
+
+  .panel {
+    margin: 0 14px;
+  }
+
+  /* Tables scroll horizontally */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 520px;
+  }
+
+  /* Toolbar stacks vertically */
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-field {
+    min-width: unset;
+  }
+
+  .filter-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+
+  /* Split layout goes single column */
+  .split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .split-aside {
+    position: static;
+  }
+
+  /* Drawer slides up from bottom on mobile */
+  .drawer-panel {
+    width: 100vw;
+    border-left: none;
+    border-radius: 18px 18px 0 0;
+    max-height: 90vh;
+    top: auto;
+    bottom: 0;
+    position: fixed;
+    animation: slide-up-drawer 260ms cubic-bezier(.4, 0, .2, 1) both;
+  }
+
+  @keyframes slide-up-drawer {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .drawer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .drawer-actions {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 }
 
