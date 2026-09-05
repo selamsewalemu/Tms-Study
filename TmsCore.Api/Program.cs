@@ -658,28 +658,24 @@ webBuilder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Validation
 webBuilder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // Module 5 Exercise 1: Register the PostgreSQL-backed context as scoped per request.
-// Auto-detect: if the Neon connection string env var is set, use it regardless of DatabaseProvider setting.
-string? neonConnectionDirect = webBuilder.Configuration.GetConnectionString("NeonDatabase");
-bool neonEnvVarIsSet = !string.IsNullOrWhiteSpace(neonConnectionDirect);
+// Read the connection string from a single flat env var NEON_DATABASE_URL (Render-safe naming).
+// Falls back to the appsettings LocalDatabase for local development.
+string? neonConnectionDirect =
+    Environment.GetEnvironmentVariable("NEON_DATABASE_URL")
+    ?? webBuilder.Configuration.GetConnectionString("NeonDatabase");
 
-string databaseProvider = neonEnvVarIsSet
-    ? "Neon"
-    : (webBuilder.Configuration["DatabaseProvider"]?.Trim() ?? "Local");
+bool useNeon = !string.IsNullOrWhiteSpace(neonConnectionDirect);
 
-string databaseConnectionName = databaseProvider.ToLowerInvariant() switch
-{
-    "local" => "LocalDatabase",
-    "neon"  => "NeonDatabase",
-    _       => throw new InvalidOperationException(
-        $"Unsupported DatabaseProvider '{databaseProvider}'. Use 'Local' or 'Neon'.")
-};
-string? databaseConnection = webBuilder.Configuration.GetConnectionString(databaseConnectionName);
+string? databaseConnection = useNeon
+    ? neonConnectionDirect
+    : webBuilder.Configuration.GetConnectionString("LocalDatabase");
+
 if (string.IsNullOrWhiteSpace(databaseConnection))
 {
     throw new InvalidOperationException(
-        $"Database connection string is missing.\n" +
-        $"On Render: add environment variable  ConnectionStrings__NeonDatabase  with your Neon connection string.\n" +
-        $"Locally: ensure appsettings.Development.json has ConnectionStrings:LocalDatabase.");
+        "Database connection string is missing. " +
+        "On Render: set environment variable NEON_DATABASE_URL to your Neon connection string. " +
+        "Locally: ensure ConnectionStrings:LocalDatabase is set in appsettings.json.");
 }
 
 webBuilder.Services.AddDbContext<TmsDbContext>(options =>
