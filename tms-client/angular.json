@@ -16,7 +16,12 @@
             "polyfills": [],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [],
+            "serviceWorker": "ngsw-config.json",
+            "assets": [
+              { "glob": "favicon.ico",         "input": "src",       "output": "/" },
+              { "glob": "manifest.webmanifest", "input": "src",       "output": "/" },
+              { "glob": "**/*",                 "input": "src/icons", "output": "icons" }
+            ],
             "styles": ["src/styles.scss"],
             "scripts": []
           },

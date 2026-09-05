@@ -1,6 +1,7 @@
-import { ApplicationConfig, inject, provideZonelessChangeDetection } from "@angular/core";
+import { ApplicationConfig, inject, isDevMode, provideZonelessChangeDetection } from "@angular/core";
 import { provideHttpClient, withInterceptors, withXsrfConfiguration } from "@angular/common/http";
 import { provideRouter, withComponentInputBinding } from "@angular/router";
+import { provideServiceWorker } from "@angular/service-worker";
 import { routes } from "./app.routes";
 import { LiveSyncService } from "./services/live-sync.service";
 import { credentialsInterceptor } from "./interceptors/credentials.interceptor";
@@ -18,6 +19,12 @@ export const appConfig: ApplicationConfig = {
         headerName: "X-XSRF-TOKEN",
       }),
     ),
+    // Registers the service worker only in production builds.
+    // In development (ng serve) it is skipped so the dev server works normally.
+    provideServiceWorker("ngsw-worker.js", {
+      enabled: !isDevMode(),
+      registrationStrategy: "registerWhenStable:30000",
+    }),
     {
       provide: "APP_BOOTSTRAP_LISTENER",
       multi: true,
